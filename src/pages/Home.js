@@ -4,10 +4,10 @@ import {
   TextInput,
   TouchableOpacity,
   View,
-} from "react-native";
-import React, { useContext, useEffect, useState } from "react";
-import NoteList from "../components/NoteList";
-import { db } from "../firebaseConnection";
+} from "react-native"
+import React, { useContext, useEffect, useState } from "react"
+import NoteList from "../components/NoteList"
+import { db } from "../firebaseConnection"
 import {
   collection,
   doc,
@@ -16,36 +16,36 @@ import {
   query,
   updateDoc,
   where,
-} from "firebase/firestore";
-import Header from "../components/Header";
-import DraggableFlatList from "react-native-draggable-flatlist";
-import { UserContext } from "../context/userContext";
-import LoadingScreen from "../components/LoadingScreen";
-import { useFocusEffect, useNavigation } from "@react-navigation/native";
-import CustomModal from "../components/CustomModal";
-import colors from "../theme/colors";
-import { iconSize } from "../theme/icon";
-import { Ionicons } from "@expo/vector-icons";
-import { fontFamily, fontSize } from "../theme/font";
-import configureNavigationBar from "../scripts/configureNavigationBar";
-import CloudButton from "../components/CloudButton";
-import ListTags from "../components/ListTags";
-import NoNotes from "../components/NoNotes";
-import getUnknownErrorFirebase from "../scripts/getUnknownErrorFirebase";
+} from "firebase/firestore"
+import Header from "../components/Header"
+import DraggableFlatList from "react-native-draggable-flatlist"
+import { UserContext } from "../context/userContext"
+import LoadingScreen from "../components/LoadingScreen"
+import { useFocusEffect, useNavigation } from "@react-navigation/native"
+import CustomModal from "../components/CustomModal"
+import colors from "../theme/colors"
+import { iconSize } from "../theme/icon"
+import { Ionicons } from "@expo/vector-icons"
+import { fontFamily, fontSize } from "../theme/font"
+import configureNavigationBar from "../scripts/configureNavigationBar"
+import CloudButton from "../components/CloudButton"
+import ListTags from "../components/ListTags"
+import NoNotes from "../components/NoNotes"
+import getUnknownErrorFirebase from "../scripts/getUnknownErrorFirebase"
 
 const Home = () => {
-  const navigation = useNavigation();
-  const [notes, setNotes] = useState([]);
-  const [notesSearch, setNotesSearch] = useState([]);
-  const [searchFilter, setSearchFilter] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  const [searchText, setSearchText] = useState("");
-  const [activeTags, setActiveTags] = useState([]);
-  const [draggingItem, setDraggingItem] = useState(null);
-  const [modalVisible, setModalVisible] = useState(false);
+  const navigation = useNavigation()
+  const [notes, setNotes] = useState([])
+  const [notesSearch, setNotesSearch] = useState([])
+  const [searchFilter, setSearchFilter] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
+  const [searchText, setSearchText] = useState("")
+  const [activeTags, setActiveTags] = useState([])
+  const [draggingItem, setDraggingItem] = useState(null)
+  const [modalVisible, setModalVisible] = useState(false)
 
-  const [forceUpdate, setForceUpdate] = useState(false);
-  const [isFocused, setIsFocused] = useState(false);
+  const [forceUpdate, setForceUpdate] = useState(false)
+  const [isFocused, setIsFocused] = useState(false)
 
   const {
     selectedNotes,
@@ -54,44 +54,44 @@ const Home = () => {
     tags,
     setStatusBarColor,
     setModalAction,
-  } = useContext(UserContext);
+  } = useContext(UserContext)
 
   useEffect(() => {
-    setIsLoading(true);
+    setIsLoading(true)
     const loadDocs = async () => {
-      await updateDocs();
-      setIsLoading(false);
-    };
-    loadDocs();
-  }, []);
+      await updateDocs()
+      setIsLoading(false)
+    }
+    loadDocs()
+  }, [])
 
   useFocusEffect(
     React.useCallback(() => {
-      setForceUpdate((prev) => !prev);
-      configureNavigationBar(colors.backgroundLight);
-      setStatusBarColor(colors.backgroundLight);
+      setForceUpdate((prev) => !prev)
+      configureNavigationBar(colors.backgroundLight)
+      setStatusBarColor(colors.backgroundLight)
 
-      updateDocs();
+      updateDocs()
 
       if (activeTags.length !== 0 || searchText !== "") {
-        updateDocsFiltered();
+        updateDocsFiltered()
       }
     }, [activeTags, searchText, selectedNotes, user])
-  );
+  )
 
   const updateDocs = async () => {
     const q = query(
       collection(db, "notes"),
       orderBy("order"),
       where("uid", "==", user.uid)
-    );
+    )
 
-    const querySnapshot = await getDocs(q);
-    const list = [];
+    const querySnapshot = await getDocs(q)
+    const list = []
     querySnapshot.forEach((doc) => {
       list.push({
         id: doc.id,
-        backgroundColor: doc.data().backgroundColor,
+        backgroundColor: returnHexColor(doc.data().backgroundColor),
         contentText: doc.data().contentText,
         createdAt: doc.data().createdAt,
         lastEditTime: doc.data().lastEditTime,
@@ -99,10 +99,30 @@ const Home = () => {
         tags: doc.data().tags,
         title: doc.data().title,
         uid: doc.data().uid,
-      });
-    });
-    setNotes(list);
-  };
+      })
+    })
+    setNotes(list)
+  }
+
+  const returnHexColor = (color) => {
+    if (color === "red") {
+      return colors.customBackgroundNoteRed
+    } else if (color === "orange") {
+      return colors.customBackgroundNoteOrange
+    } else if (color === "yellow") {
+      return colors.customBackgroundNoteYellow
+    } else if (color === "green") {
+      return colors.customBackgroundNoteGreen
+    } else if (color === "blue") {
+      return colors.customBackgroundNoteBlue
+    } else if (color === "indigo") {
+      return colors.customBackgroundNoteIndigo
+    } else if (color === "violet") {
+      return colors.customBackgroundNoteViolet
+    } else if (color === "default") {
+      return colors.backgroundLight
+    }
+  }
 
   const updateDocsFiltered = async () => {
     if (activeTags.length !== 0) {
@@ -110,15 +130,15 @@ const Home = () => {
         collection(db, "notes"),
         orderBy("order"),
         where("uid", "==", user.uid)
-      );
-      const querySnapshot = await getDocs(q);
-      const list = [];
+      )
+      const querySnapshot = await getDocs(q)
+      const list = []
       querySnapshot.forEach((doc) => {
-        const tagsFromNote = doc.data().tags;
+        const tagsFromNote = doc.data().tags
         if (containsAllElements(tagsFromNote, activeTags)) {
           list.push({
             id: doc.id,
-            backgroundColor: doc.data().backgroundColor,
+            backgroundColor: returnHexColor(doc.data().backgroundColor),
             contentText: doc.data().contentText,
             createdAt: doc.data().createdAt,
             lastEditTime: doc.data().lastEditTime,
@@ -126,25 +146,25 @@ const Home = () => {
             tags: doc.data().tags,
             title: doc.data().title,
             uid: doc.data().uid,
-          });
+          })
         }
-      });
-      setNotesSearch(list);
+      })
+      setNotesSearch(list)
     }
 
     if (searchText !== "") {
-      const list = [];
-      const itemLowerCase = searchText.trim().toLowerCase();
+      const list = []
+      const itemLowerCase = searchText.trim().toLowerCase()
 
       const q = query(
         collection(db, "notes"),
         orderBy("order"),
         where("uid", "==", user.uid)
-      );
-      const querySnapshot = await getDocs(q);
+      )
+      const querySnapshot = await getDocs(q)
       querySnapshot.forEach((doc) => {
-        const contentTextLowerCase = doc.data().contentText.toLowerCase();
-        const titleLowerCase = doc.data().title.toLowerCase();
+        const contentTextLowerCase = doc.data().contentText.toLowerCase()
+        const titleLowerCase = doc.data().title.toLowerCase()
 
         if (
           titleLowerCase.includes(itemLowerCase) ||
@@ -152,7 +172,7 @@ const Home = () => {
         ) {
           list.push({
             id: doc.id,
-            backgroundColor: doc.data().backgroundColor,
+            backgroundColor: returnHexColor(doc.data().backgroundColor),
             contentText: doc.data().contentText,
             createdAt: doc.data().createdAt,
             lastEditTime: doc.data().lastEditTime,
@@ -160,78 +180,78 @@ const Home = () => {
             tags: doc.data().tags,
             title: doc.data().title,
             uid: doc.data().uid,
-          });
+          })
         }
-      });
-      setNotesSearch(list);
+      })
+      setNotesSearch(list)
     }
-  };
+  }
 
-  const handleAdjustOrder = async ({ data, from, to }) => {
-    let needUpdate = false;
+  const handleAdjustOrder = async ({ data }) => {
+    let needUpdate = false
     for (let i = 0; i < data.length; i++) {
       if (data[i].id !== notes[i].id) {
-        needUpdate = true;
+        needUpdate = true
       }
     }
     if (needUpdate) {
-      setNotes(data);
+      setNotes(data)
       await Promise.all(
         data.map(async (item, index) => {
-          const noteRef = doc(db, "notes", item.id);
+          const noteRef = doc(db, "notes", item.id)
           await updateDoc(noteRef, { order: index }).catch((error) => {
-            setModalVisible(true);
+            setModalVisible(true)
             getUnknownErrorFirebase(
               "Home",
               "handleAdjustOrder/updateDoc",
               error.code,
               error.message
-            );
-            setModalAction("UnknownError");
-          });
+            )
+            setModalAction("UnknownError")
+          })
         })
       )
         .then(() => {})
         .catch((error) => {
-          setModalVisible(true);
+          setModalVisible(true)
           getUnknownErrorFirebase(
             "Home",
             "handleAdjustOrder/Promise",
             error.code,
             error.message
-          );
-          setModalAction("UnknownError");
-        });
+          )
+          setModalAction("UnknownError")
+        })
     } else {
-      setSelectedNotes([draggingItem]);
+      setSelectedNotes([draggingItem])
     }
-  };
+  }
 
   const searchNotes = async (fromWhere, item) => {
-    setSearchFilter(false);
+    setSearchFilter(false)
 
     if (fromWhere === "tags") {
-      let activeTagsList = activeTags;
+      let activeTagsList = activeTags
       if (activeTagsList.includes(item)) {
-        activeTagsList = activeTagsList.filter((t) => t !== item).sort();
+        activeTagsList = activeTagsList.filter((t) => t !== item).sort()
       } else {
-        activeTagsList = [...activeTagsList, item].sort();
+        activeTagsList = [...activeTagsList, item].sort()
       }
-      setActiveTags(activeTagsList);
+      setActiveTags(activeTagsList)
 
       const q = query(
         collection(db, "notes"),
         orderBy("order"),
         where("uid", "==", user.uid)
-      );
-      const querySnapshot = await getDocs(q);
-      const list = [];
+      )
+      const querySnapshot = await getDocs(q)
+      const list = []
       querySnapshot.forEach((doc) => {
-        const tagsFromNote = doc.data().tags;
+        const tagsFromNote = doc.data().tags
         if (containsAllElements(tagsFromNote, activeTagsList)) {
           list.push({
             id: doc.id,
-            backgroundColor: doc.data().backgroundColor,
+            backgroundColor: returnHexColor(doc.data().backgroundColor),
             contentText: doc.data().contentText,
             createdAt: doc.data().createdAt,
             lastEditTime: doc.data().lastEditTime,
@@ -239,37 +259,37 @@ const Home = () => {
             tags: doc.data().tags,
             title: doc.data().title,
             uid: doc.data().uid,
-          });
+          })
         }
-      });
+      })
       if (activeTagsList.length !== 0) {
-        setSearchText("");
-        setSearchFilter(true);
-        setNotesSearch(list);
+        setSearchText("")
+        setSearchFilter(true)
+        setNotesSearch(list)
       } else {
-        setSearchFilter(false);
+        setSearchFilter(false)
       }
     }
     if (fromWhere === "input") {
-      setSearchText(item);
+      setSearchText(item)
       if (!item) {
-        return;
+        return
       }
-      setActiveTags([]);
-      setSearchFilter(true);
+      setActiveTags([])
+      setSearchFilter(true)
 
-      const list = [];
-      const itemLowerCase = searchText.trim().toLowerCase();
+      const list = []
+      const itemLowerCase = searchText.trim().toLowerCase()
 
       const q = query(
         collection(db, "notes"),
         orderBy("order"),
         where("uid", "==", user.uid)
-      );
-      const querySnapshot = await getDocs(q);
+      )
+      const querySnapshot = await getDocs(q)
       querySnapshot.forEach((doc) => {
-        const contentTextLowerCase = doc.data().contentText.toLowerCase();
-        const titleLowerCase = doc.data().title.toLowerCase();
+        const contentTextLowerCase = doc.data().contentText.toLowerCase()
+        const titleLowerCase = doc.data().title.toLowerCase()
 
         if (
           titleLowerCase.includes(itemLowerCase) ||
@@ -277,7 +297,7 @@ const Home = () => {
         ) {
           list.push({
             id: doc.id,
-            backgroundColor: doc.data().backgroundColor,
+            backgroundColor: returnHexColor(doc.data().backgroundColor),
             contentText: doc.data().contentText,
             createdAt: doc.data().createdAt,
             lastEditTime: doc.data().lastEditTime,
@@ -285,25 +305,25 @@ const Home = () => {
             tags: doc.data().tags,
             title: doc.data().title,
             uid: doc.data().uid,
-          });
+          })
         }
-      });
-      setNotesSearch(list);
+      })
+      setNotesSearch(list)
     }
-  };
+  }
 
   function containsAllElements(array1, array2) {
-    const set = new Set(array1);
+    const set = new Set(array1)
     for (let item of array2) {
       if (!set.has(item)) {
-        return false;
+        return false
       }
     }
-    return true;
+    return true
   }
 
   if (isLoading) {
-    return <LoadingScreen />;
+    return <LoadingScreen />
   }
   return (
     <>
@@ -344,8 +364,8 @@ const Home = () => {
                       {selectedNotes.length}
                     </Text>
                     {selectedNotes.length == 1
-                      ? " nota selecionada"
-                      : " notas selecionadas"}
+                      ? " selected note"
+                      : " selected notes"}
                   </Text>
                   <View
                     style={{
@@ -363,8 +383,8 @@ const Home = () => {
                     </TouchableOpacity>
                     <TouchableOpacity
                       onPress={() => {
-                        setModalAction("DelSelectedNotes");
-                        setModalVisible(true);
+                        setModalAction("DelSelectedNotes")
+                        setModalVisible(true)
                       }}
                     >
                       <Ionicons
@@ -421,7 +441,7 @@ const Home = () => {
             data={searchFilter ? notesSearch : notes}
             keyExtractor={(item) => item.id}
             onDragBegin={(index) => {
-              setDraggingItem(searchFilter ? notesSearch[index] : notes[index]);
+              setDraggingItem(searchFilter ? notesSearch[index] : notes[index])
             }}
             onDragEnd={handleAdjustOrder}
             renderItem={({ item, drag }) => (
@@ -451,8 +471,8 @@ const Home = () => {
         />
       </View>
     </>
-  );
-};
+  )
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -485,6 +505,6 @@ const styles = StyleSheet.create({
     fontSize: fontSize.regular,
     fontFamily: fontFamily.PoppinsRegular400,
   },
-});
+})
 
-export default Home;
+export default Home

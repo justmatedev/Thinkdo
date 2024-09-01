@@ -1,7 +1,7 @@
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import React from "react";
-import colors from "../theme/colors";
-import { fontFamily, fontSize } from "../theme/font";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native"
+import React from "react"
+import colors from "../theme/colors"
+import { fontFamily, fontSize } from "../theme/font"
 
 const Tags = ({ item, activeTags, onPressFunc }) => {
   if (onPressFunc) {
@@ -20,7 +20,7 @@ const Tags = ({ item, activeTags, onPressFunc }) => {
           #{item}
         </Text>
       </TouchableOpacity>
-    );
+    )
   }
   return (
     <View
@@ -35,10 +35,10 @@ const Tags = ({ item, activeTags, onPressFunc }) => {
         #{item}
       </Text>
     </View>
-  );
-};
+  )
+}
 
-export default Tags;
+export default Tags
 
 const styles = StyleSheet.create({
   tag: {
@@ -55,4 +55,4 @@ const styles = StyleSheet.create({
     fontFamily: fontFamily.PoppinsRegular400,
     paddingTop: 3,
   },
-});
+})

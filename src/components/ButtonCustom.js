@@ -1,8 +1,8 @@
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import React from "react";
-import { fontFamily, fontSize } from "../theme/font";
-import colors from "../theme/colors";
-import Loading from "./Loading";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native"
+import React from "react"
+import { fontFamily, fontSize } from "../theme/font"
+import colors from "../theme/colors"
+import Loading from "./Loading"
 
 const ButtonCustom = ({
   title,
@@ -13,6 +13,7 @@ const ButtonCustom = ({
   heightBtn,
   txtColor,
   border,
+  borderColor,
 }) => {
   return (
     <TouchableOpacity
@@ -22,7 +23,7 @@ const ButtonCustom = ({
           backgroundColor: background,
           height: heightBtn ? heightBtn : 40,
           borderWidth: border ? 1 : 0,
-          borderColor: border ? colors.primaryPurple : "transparent",
+          borderColor: border ? borderColor : "transparent",
         },
       ]}
       activeOpacity={active ? 1 : 0.5}
@@ -48,10 +49,10 @@ const ButtonCustom = ({
         </>
       )}
     </TouchableOpacity>
-  );
-};
+  )
+}
 
-export default ButtonCustom;
+export default ButtonCustom
 
 const styles = StyleSheet.create({
   container: {
@@ -71,4 +72,4 @@ const styles = StyleSheet.create({
     fontFamily: fontFamily.PoppinsMedium500,
     marginTop: 3,
   },
-});
+})

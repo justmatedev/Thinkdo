@@ -1,5 +1,5 @@
-import { ActivityIndicator } from "react-native";
-import colors from "../theme/colors";
+import { ActivityIndicator } from "react-native"
+import colors from "../theme/colors"
 
 const Loading = ({ color }) => {
   return (
@@ -7,7 +7,7 @@ const Loading = ({ color }) => {
       size="small"
       color={color ? color : colors.primaryGreen}
     />
-  );
-};
+  )
+}
 
-export default Loading;
+export default Loading

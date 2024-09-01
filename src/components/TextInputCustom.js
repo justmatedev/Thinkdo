@@ -1,7 +1,7 @@
-import { StyleSheet, Text, TextInput, View } from "react-native";
-import { fontFamily, fontSize } from "../theme/font";
-import colors from "../theme/colors";
-import { useState } from "react";
+import { StyleSheet, Text, TextInput, View } from "react-native"
+import { fontFamily, fontSize } from "../theme/font"
+import colors from "../theme/colors"
+import { useState } from "react"
 
 const TextInputCustom = ({
   text,
@@ -12,7 +12,7 @@ const TextInputCustom = ({
   autoCapitalize,
   forModal,
 }) => {
-  const [isFocused, setIsFocused] = useState(false);
+  const [isFocused, setIsFocused] = useState(false)
 
   return (
     <View style={styles.container}>
@@ -51,10 +51,10 @@ const TextInputCustom = ({
         />
       </View>
     </View>
-  );
-};
+  )
+}
 
-export default TextInputCustom;
+export default TextInputCustom
 
 const styles = StyleSheet.create({
   container: {
@@ -75,4 +75,4 @@ const styles = StyleSheet.create({
     fontSize: fontSize.regular,
     paddingStart: 5,
   },
-});
+})

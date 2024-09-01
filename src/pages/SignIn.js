@@ -7,87 +7,87 @@ import {
   View,
   KeyboardAvoidingView,
   Platform,
-} from "react-native";
-import React, { useContext, useState } from "react";
-import { useNavigation, useFocusEffect } from "@react-navigation/native";
-import { auth } from "../firebaseConnection";
-import { signInWithEmailAndPassword } from "firebase/auth";
-import { UserContext } from "../context/userContext";
-import TextInputCustom from "../components/TextInputCustom";
-import ButtonCustom from "../components/ButtonCustom";
-import colors from "../theme/colors";
-import { iconSize, iconSource } from "../theme/icon";
-import { fontFamily, fontSize } from "../theme/font";
-import { Ionicons } from "@expo/vector-icons";
-import { StatusBar } from "expo-status-bar";
-import Clouds from "../components/Clouds";
-import configureNavigationBar from "../scripts/configureNavigationBar";
-import CustomModal from "../components/CustomModal";
-import getUnknownErrorFirebase from "../scripts/getUnknownErrorFirebase";
+} from "react-native"
+import React, { useContext, useState } from "react"
+import { useNavigation, useFocusEffect } from "@react-navigation/native"
+import { auth } from "../firebaseConnection"
+import { signInWithEmailAndPassword } from "firebase/auth"
+import { UserContext } from "../context/userContext"
+import TextInputCustom from "../components/TextInputCustom"
+import ButtonCustom from "../components/ButtonCustom"
+import colors from "../theme/colors"
+import { iconSize, iconSource } from "../theme/icon"
+import { fontFamily, fontSize } from "../theme/font"
+import { Ionicons } from "@expo/vector-icons"
+import { StatusBar } from "expo-status-bar"
+import Clouds from "../components/Clouds"
+import configureNavigationBar from "../scripts/configureNavigationBar"
+import CustomModal from "../components/CustomModal"
+import getUnknownErrorFirebase from "../scripts/getUnknownErrorFirebase"
 
 const SignIn = () => {
-  const navigation = useNavigation();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const { EnterUser, setModalAction } = useContext(UserContext);
-  const [loadingLogin, setLoadingLogin] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-  const [modalVisible, setModalVisible] = useState(false);
+  const navigation = useNavigation()
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const { EnterUser, setModalAction } = useContext(UserContext)
+  const [loadingLogin, setLoadingLogin] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
+  const [modalVisible, setModalVisible] = useState(false)
 
   useFocusEffect(
     React.useCallback(() => {
-      configureNavigationBar(colors.primaryPurple);
+      configureNavigationBar(colors.primaryPurple)
 
       const unsubscribe = navigation.addListener("beforeRemove", () => {
-        setModalAction("");
-        return true;
-      });
+        setModalAction("")
+        return true
+      })
 
-      return unsubscribe;
+      return unsubscribe
     }, [])
-  );
+  )
 
   const handleLogin = () => {
     if (email && password) {
-      const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      const checkEmail = re.test(String(email).toLowerCase());
+      const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+      const checkEmail = re.test(String(email).toLowerCase())
       if (checkEmail) {
-        setLoadingLogin(true);
+        setLoadingLogin(true)
         signInWithEmailAndPassword(auth, email, password)
           .then((userCredential) => {
-            EnterUser(userCredential.user);
-            navigation.navigate("Home");
+            EnterUser(userCredential.user)
+            navigation.navigate("Home")
           })
           .catch((error) => {
-            setModalVisible(true);
+            setModalVisible(true)
             if (error.code === "auth/user-not-found") {
-              setModalAction("UserNotFound");
+              setModalAction("UserNotFound")
             } else if (error.code === "auth/wrong-password") {
-              setModalAction("WrongPassword");
+              setModalAction("WrongPassword")
             } else if (error.code === "auth/too-many-requests") {
-              setModalAction("TooManyRequests");
+              setModalAction("TooManyRequests")
             } else {
               getUnknownErrorFirebase(
                 "SignIn",
                 "handleLogin/signInWithEmailAndPassword",
                 error.code,
                 error.message
-              );
-              setModalAction("UnknownError");
+              )
+              setModalAction("UnknownError")
             }
-          });
-        setLoadingLogin(false);
+          })
+        setLoadingLogin(false)
       } else {
-        setModalAction("InvalidEmail");
-        setModalVisible(true);
+        setModalAction("InvalidEmail")
+        setModalVisible(true)
       }
     }
-  };
+  }
 
   const forgotPassword = () => {
-    setModalAction("ConfirmEmailForSendPasswordReset");
-    setModalVisible(true);
-  };
+    setModalAction("ConfirmEmailForSendPasswordReset")
+    setModalVisible(true)
+  }
 
   return (
     <>
@@ -106,7 +106,7 @@ const SignIn = () => {
             <View style={{ marginBottom: 50 }}>
               <Image
                 style={{ height: 77, width: 140.8 }}
-                source={iconSource.logoRoxo}
+                source={iconSource.logo}
               />
             </View>
             <View style={styles.form}>
@@ -215,10 +215,10 @@ const SignIn = () => {
         <Clouds bottom />
       </View>
     </>
-  );
-};
+  )
+}
 
-export default SignIn;
+export default SignIn
 
 const styles = StyleSheet.create({
   container: {
@@ -233,4 +233,4 @@ const styles = StyleSheet.create({
     fontSize: fontSize.regular,
     fontFamily: fontFamily.PoppinsRegular400,
   },
-});
+})

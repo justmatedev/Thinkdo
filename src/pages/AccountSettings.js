@@ -5,51 +5,51 @@ import {
   TouchableOpacity,
   KeyboardAvoidingView,
   Platform,
-} from "react-native";
-import React, { useContext, useState } from "react";
-import Header from "../components/Header";
-import colors from "../theme/colors";
-import TextInputCustom from "../components/TextInputCustom";
-import { UserContext } from "../context/userContext";
-import { Ionicons } from "@expo/vector-icons";
-import { iconSize } from "../theme/icon";
-import { useFocusEffect, useNavigation } from "@react-navigation/native";
-import { sendEmailVerification } from "firebase/auth";
-import { auth, db } from "../firebaseConnection";
-import CustomModal from "../components/CustomModal";
-import moment from "moment";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
-import ButtonCustom from "../components/ButtonCustom";
-import getUnknownErrorFirebase from "../scripts/getUnknownErrorFirebase";
+} from "react-native"
+import React, { useContext, useState } from "react"
+import Header from "../components/Header"
+import colors from "../theme/colors"
+import TextInputCustom from "../components/TextInputCustom"
+import { UserContext } from "../context/userContext"
+import { Ionicons } from "@expo/vector-icons"
+import { iconSize } from "../theme/icon"
+import { useFocusEffect, useNavigation } from "@react-navigation/native"
+import { sendEmailVerification } from "firebase/auth"
+import { auth, db } from "../firebaseConnection"
+import CustomModal from "../components/CustomModal"
+import moment from "moment"
+import { doc, getDoc, updateDoc } from "firebase/firestore"
+import ButtonCustom from "../components/ButtonCustom"
+import getUnknownErrorFirebase from "../scripts/getUnknownErrorFirebase"
 
 const AccountSettings = () => {
-  const { user, setUser, setModalAction } = useContext(UserContext);
-  const navigation = useNavigation();
-  const [name, setName] = useState(user.displayName);
-  const [email, setEmail] = useState(user.email);
-  const [password, setPassowrd] = useState("");
-  const [confirmPassword, setConfirmPassowrd] = useState("");
-  const [verifiedEmail, setVerifiedEmail] = useState(user.emailVerified);
-  const [modalVisible, setModalVisible] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const { user, setUser, setModalAction } = useContext(UserContext)
+  const navigation = useNavigation()
+  const [name, setName] = useState(user.displayName)
+  const [email, setEmail] = useState(user.email)
+  const [password, setPassowrd] = useState("")
+  const [confirmPassword, setConfirmPassowrd] = useState("")
+  const [verifiedEmail, setVerifiedEmail] = useState(user.emailVerified)
+  const [modalVisible, setModalVisible] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
   useFocusEffect(
     React.useCallback(() => {
       const unsubscribe = navigation.addListener("beforeRemove", () => {
-        setModalAction("");
-        return true;
-      });
+        setModalAction("")
+        return true
+      })
 
-      return unsubscribe;
+      return unsubscribe
     }, [])
-  );
+  )
 
   const profileUpdate = () => {
     if (name !== user.displayName || email !== user.email || password !== "") {
       if (user.emailVerified) {
-        const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        const checkEmail = re.test(String(email).toLowerCase());
+        const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+        const checkEmail = re.test(String(email).toLowerCase())
 
         if (
           name !== user.displayName &&
@@ -60,157 +60,157 @@ const AccountSettings = () => {
             if (checkEmail) {
               if (password.length > 5) {
                 if (password === confirmPassword) {
-                  setModalAction("ConfirmPassForEmailPasswordName");
-                  setModalVisible(true);
+                  setModalAction("ConfirmPassForEmailPasswordName")
+                  setModalVisible(true)
                 } else {
-                  setModalAction("DifferentPassword");
-                  setModalVisible(true);
+                  setModalAction("DifferentPassword")
+                  setModalVisible(true)
                 }
               } else {
-                setModalAction("ShortPassword");
-                setModalVisible(true);
+                setModalAction("ShortPassword")
+                setModalVisible(true)
               }
             } else {
-              setModalAction("InvalidEmail");
-              setModalVisible(true);
+              setModalAction("InvalidEmail")
+              setModalVisible(true)
             }
           } else {
-            setModalAction("EmptyName");
-            setModalVisible(true);
+            setModalAction("EmptyName")
+            setModalVisible(true)
           }
         } else if (name !== user.displayName && email !== user.email) {
           if (name !== "") {
             if (checkEmail) {
-              setModalAction("ConfirmPassForEmailName");
-              setModalVisible(true);
+              setModalAction("ConfirmPassForEmailName")
+              setModalVisible(true)
             } else {
-              setModalAction("InvalidEmail");
-              setModalVisible(true);
+              setModalAction("InvalidEmail")
+              setModalVisible(true)
             }
           } else {
-            setModalAction("EmptyName");
-            setModalVisible(true);
+            setModalAction("EmptyName")
+            setModalVisible(true)
           }
         } else if (name !== user.displayName && password !== "") {
           if (name !== "") {
             if (password.length > 5) {
               if (password === confirmPassword) {
-                setModalAction("ConfirmPassForPasswordName");
-                setModalVisible(true);
+                setModalAction("ConfirmPassForPasswordName")
+                setModalVisible(true)
               } else {
-                setModalAction("DifferentPassword");
-                setModalVisible(true);
+                setModalAction("DifferentPassword")
+                setModalVisible(true)
               }
             } else {
-              setModalAction("ShortPassword");
-              setModalVisible(true);
+              setModalAction("ShortPassword")
+              setModalVisible(true)
             }
           } else {
-            setModalAction("EmptyName");
-            setModalVisible(true);
+            setModalAction("EmptyName")
+            setModalVisible(true)
           }
         } else if (email !== user.email && password !== "") {
           if (checkEmail) {
             if (password.length > 5) {
               if (password === confirmPassword) {
-                setModalAction("ConfirmPassForEmailPassword");
-                setModalVisible(true);
+                setModalAction("ConfirmPassForEmailPassword")
+                setModalVisible(true)
               } else {
-                setModalAction("DifferentPassword");
-                setModalVisible(true);
+                setModalAction("DifferentPassword")
+                setModalVisible(true)
               }
             } else {
-              setModalAction("ShortPassword");
-              setModalVisible(true);
+              setModalAction("ShortPassword")
+              setModalVisible(true)
             }
           } else {
-            setModalAction("InvalidEmail");
-            setModalVisible(true);
+            setModalAction("InvalidEmail")
+            setModalVisible(true)
           }
         } else if (email !== user.email) {
           if (checkEmail) {
-            setModalAction("ConfirmPassForEmail");
-            setModalVisible(true);
+            setModalAction("ConfirmPassForEmail")
+            setModalVisible(true)
           } else {
-            setModalAction("InvalidEmail");
-            setModalVisible(true);
+            setModalAction("InvalidEmail")
+            setModalVisible(true)
           }
         } else if (password !== "") {
           if (password.length > 5) {
             if (password === confirmPassword) {
-              setModalAction("ConfirmPassForPassword");
-              setModalVisible(true);
+              setModalAction("ConfirmPassForPassword")
+              setModalVisible(true)
             } else {
-              setModalAction("DifferentPassword");
-              setModalVisible(true);
+              setModalAction("DifferentPassword")
+              setModalVisible(true)
             }
           } else {
-            setModalAction("ShortPassword");
-            setModalVisible(true);
+            setModalAction("ShortPassword")
+            setModalVisible(true)
           }
         } else if (name !== user.displayName) {
           if (name !== "") {
-            setModalAction("ConfirmPassForName");
-            setModalVisible(true);
+            setModalAction("ConfirmPassForName")
+            setModalVisible(true)
           } else {
-            setModalAction("EmptyName");
-            setModalVisible(true);
+            setModalAction("EmptyName")
+            setModalVisible(true)
           }
         }
       } else {
-        setModalAction("NeedVerifyEmail");
-        setModalVisible(true);
+        setModalAction("NeedVerifyEmail")
+        setModalVisible(true)
       }
     }
-  };
+  }
 
   const sendVerifiedEmail = async () => {
-    const docRef = doc(db, "userData", user.uid);
-    const docSnap = await getDoc(docRef);
-    const lastDate = docSnap.data().LastTimeSendVerifiedEmail;
-    const lastDateMoment = moment(lastDate, "YYYY-MM-DD HH:mm:ss");
-    const now = moment();
+    const docRef = doc(db, "userData", user.uid)
+    const docSnap = await getDoc(docRef)
+    const lastDate = docSnap.data().LastTimeSendVerifiedEmail
+    const lastDateMoment = moment(lastDate, "YYYY-MM-DD HH:mm:ss")
+    const now = moment()
 
-    const lastDatePlus = lastDateMoment.add(1, "minutes");
+    const lastDatePlus = lastDateMoment.add(1, "minutes")
 
     if (now.isAfter(lastDatePlus) || !lastDate) {
       sendEmailVerification(auth.currentUser)
         .then(async () => {
-          setModalAction("SendEmail");
-          setModalVisible(true);
-          const nowDate = moment().format("YYYY-MM-DD HH:mm:ss");
-          const docRef = doc(db, "userData", user.uid);
+          setModalAction("SendEmail")
+          setModalVisible(true)
+          const nowDate = moment().format("YYYY-MM-DD HH:mm:ss")
+          const docRef = doc(db, "userData", user.uid)
           await updateDoc(docRef, {
             LastTimeSendVerifiedEmail: nowDate,
-          });
+          })
         })
         .catch((error) => {
-          setModalVisible(true);
+          setModalVisible(true)
           getUnknownErrorFirebase(
             "AccountSettings",
             "sendVerifiedEmail/sendEmailVerification",
             error.code,
             error.message
-          );
-          setModalAction("UnknownError");
-        });
+          )
+          setModalAction("UnknownError")
+        })
     } else {
-      setModalAction("TooManyRequests");
-      setModalVisible(true);
+      setModalAction("TooManyRequests")
+      setModalVisible(true)
     }
-  };
+  }
 
   const checkVerifiedEmail = () => {
-    const userNow = auth.currentUser;
+    const userNow = auth.currentUser
     userNow.reload().then(() => {
       if (userNow.emailVerified) {
-        setUser(userNow);
-        setVerifiedEmail(true);
+        setUser(userNow)
+        setVerifiedEmail(true)
       } else {
-        setVerifiedEmail(false);
+        setVerifiedEmail(false)
       }
-    });
-  };
+    })
+  }
 
   return (
     <>
@@ -252,6 +252,7 @@ const AccountSettings = () => {
                     onPressFunc={sendVerifiedEmail}
                     txtColor={colors.primaryPurple}
                     border
+                    borderColor={colors.primaryPurple}
                   />
                 </View>
                 <View style={{ width: "15%" }}>
@@ -259,6 +260,7 @@ const AccountSettings = () => {
                     onPressFunc={checkVerifiedEmail}
                     txtColor={colors.primaryPurple}
                     border
+                    borderColor={colors.primaryPurple}
                     icon={
                       <Ionicons
                         name="refresh"
@@ -362,10 +364,10 @@ const AccountSettings = () => {
         />
       </ScrollView>
     </>
-  );
-};
+  )
+}
 
-export default AccountSettings;
+export default AccountSettings
 
 const styles = StyleSheet.create({
   container: {
@@ -376,4 +378,4 @@ const styles = StyleSheet.create({
     maxWidth: 500,
     paddingBottom: 10,
   },
-});
+})

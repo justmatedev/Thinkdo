@@ -1,10 +1,10 @@
-import "dotenv/config";
+import "dotenv/config"
 
 export default {
   expo: {
     name: "Thinkdo",
     slug: "Thinkdo",
-    version: "1.0.0",
+    version: "1.0.1",
     orientation: "portrait",
     icon: "./assets/icon.png",
     userInterfaceStyle: "light",
@@ -40,4 +40,4 @@ export default {
       },
     },
   },
-};
+}

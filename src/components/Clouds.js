@@ -1,6 +1,6 @@
-import { StyleSheet, View, Dimensions } from "react-native";
-import colors from "../theme/colors";
-const { width, height } = Dimensions.get("window");
+import { StyleSheet, View, Dimensions } from "react-native"
+import colors from "../theme/colors"
+const { width, height } = Dimensions.get("window")
 
 const offsets = [
   { top: 0.015, left: 0.013 },
@@ -19,7 +19,7 @@ const offsets = [
   { top: 0.013, left: 0.35 },
   { top: 0.01, left: 0.38 },
   { top: 0.015, left: 0.43 },
-];
+]
 
 const Clouds = ({ bottom }) => {
   return (
@@ -56,8 +56,8 @@ const Clouds = ({ bottom }) => {
         )
       )}
     </View>
-  );
-};
+  )
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -73,6 +73,6 @@ const styles = StyleSheet.create({
     borderTopEndRadius: 20,
     backgroundColor: colors.backgroundLight,
   },
-});
+})
 
-export default Clouds;
+export default Clouds

@@ -1,6 +1,6 @@
-import { Text, View, Modal, TouchableOpacity, StyleSheet } from "react-native";
-import React, { useContext, useEffect, useState } from "react";
-import { auth, db } from "../firebaseConnection";
+import { Text, View, Modal, TouchableOpacity, StyleSheet } from "react-native"
+import React, { useContext, useEffect, useState } from "react"
+import { auth, db } from "../firebaseConnection"
 import {
   collection,
   deleteDoc,
@@ -8,13 +8,13 @@ import {
   getDocs,
   query,
   updateDoc,
-} from "firebase/firestore";
-import { UserContext } from "../context/userContext";
-import { useNavigation } from "@react-navigation/native";
-import { fontFamily, fontSize } from "../theme/font";
-import colors from "../theme/colors";
-import configureNavigationBar from "../scripts/configureNavigationBar";
-import TextInputCustom from "./TextInputCustom";
+} from "firebase/firestore"
+import { UserContext } from "../context/userContext"
+import { useNavigation } from "@react-navigation/native"
+import { fontFamily, fontSize } from "../theme/font"
+import colors from "../theme/colors"
+import configureNavigationBar from "../scripts/configureNavigationBar"
+import TextInputCustom from "./TextInputCustom"
 import {
   EmailAuthProvider,
   reauthenticateWithCredential,
@@ -22,11 +22,11 @@ import {
   updateEmail,
   updatePassword,
   updateProfile,
-} from "firebase/auth";
-import ButtonCustom from "./ButtonCustom";
-import { Ionicons } from "@expo/vector-icons";
-import { iconSize } from "../theme/icon";
-import getUnknownErrorFirebase from "../scripts/getUnknownErrorFirebase";
+} from "firebase/auth"
+import ButtonCustom from "./ButtonCustom"
+import { Ionicons } from "@expo/vector-icons"
+import { iconSize } from "../theme/icon"
+import getUnknownErrorFirebase from "../scripts/getUnknownErrorFirebase"
 
 const CustomModal = ({
   modalVisible,
@@ -39,7 +39,7 @@ const CustomModal = ({
   newPassword,
   checkVerifiedEmail,
 }) => {
-  const navigation = useNavigation();
+  const navigation = useNavigation()
   const {
     tags,
     setTags,
@@ -51,11 +51,11 @@ const CustomModal = ({
     setStatusBarColor,
     modalAction,
     setModalAction,
-  } = useContext(UserContext);
-  const [activeLoading, setActiveLoading] = useState(false);
-  const [password, setPassword] = useState("");
-  const [email, setEmail] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
+  } = useContext(UserContext)
+  const [activeLoading, setActiveLoading] = useState(false)
+  const [password, setPassword] = useState("")
+  const [email, setEmail] = useState("")
+  const [showPassword, setShowPassword] = useState(false)
 
   useEffect(() => {
     const colorMapping = {
@@ -71,7 +71,7 @@ const CustomModal = ({
       [colors.customBackgroundNoteViolet]:
         colors.customStatusBarModalNoteViolet,
       [colors.backgroundLight]: colors.backgroundLightStatusBarModal,
-    };
+    }
 
     const reverseColorMapping = {
       [colors.customStatusBarModalNoteRed]: colors.customBackgroundNoteRed,
@@ -86,29 +86,29 @@ const CustomModal = ({
       [colors.customStatusBarModalNoteViolet]:
         colors.customBackgroundNoteViolet,
       [colors.backgroundLightStatusBarModal]: colors.backgroundLight,
-    };
+    }
 
     if (modalVisible) {
-      const newColor = colorMapping[statusBarColor] || statusBarColor;
-      setStatusBarColor(newColor);
-      configureNavigationBar(newColor);
+      const newColor = colorMapping[statusBarColor] || statusBarColor
+      setStatusBarColor(newColor)
+      configureNavigationBar(newColor)
     } else {
-      const newColor = reverseColorMapping[statusBarColor] || statusBarColor;
-      setStatusBarColor(newColor);
-      configureNavigationBar(newColor);
+      const newColor = reverseColorMapping[statusBarColor] || statusBarColor
+      setStatusBarColor(newColor)
+      configureNavigationBar(newColor)
     }
 
     if (!modalVisible) {
-      setModalAction("");
-      setActiveLoading(false);
-      setPassword("");
-      setEmail("");
-      setShowPassword(false);
+      setModalAction("")
+      setActiveLoading(false)
+      setPassword("")
+      setEmail("")
+      setShowPassword(false)
     }
-  }, [modalVisible]);
+  }, [modalVisible])
 
   const delNote = async () => {
-    setActiveLoading(true);
+    setActiveLoading(true)
     if (selectedNotes.length !== 0) {
       for (let i = 0; i < selectedNotes.length; i++) {
         await deleteDoc(doc(db, "notes", selectedNotes[i].id)).catch(
@@ -118,14 +118,14 @@ const CustomModal = ({
               "delNote/deleteDoc",
               error.code,
               error.message
-            );
-            setModalAction("UnknownError");
-            setActiveLoading(false);
-            return;
+            )
+            setModalAction("UnknownError")
+            setActiveLoading(false)
+            return
           }
-        );
+        )
       }
-      setSelectedNotes([]);
+      setSelectedNotes([])
     } else {
       await deleteDoc(doc(db, "notes", idNote)).catch((error) => {
         getUnknownErrorFirebase(
@@ -133,44 +133,44 @@ const CustomModal = ({
           "delNote/deleteDoc",
           error.code,
           error.message
-        );
-        setModalAction("UnknownError");
-        setActiveLoading(false);
-        return;
-      });
-      navigation.goBack();
+        )
+        setModalAction("UnknownError")
+        setActiveLoading(false)
+        return
+      })
+      navigation.goBack()
     }
-    setModalVisible(false);
-    setActiveLoading(false);
-  };
+    setModalVisible(false)
+    setActiveLoading(false)
+  }
 
   const delTag = async () => {
-    setActiveLoading(true);
-    const item = theTagIsEditing;
-    setTags([]);
-    let list = tags;
-    const indexItem = list.indexOf(item);
+    setActiveLoading(true)
+    const item = theTagIsEditing
+    setTags([])
+    let list = tags
+    const indexItem = list.indexOf(item)
     if (indexItem !== -1) {
-      list.splice(indexItem, 1);
+      list.splice(indexItem, 1)
     }
 
-    list.sort((a, b) => a.localeCompare(b));
-    setTags(list);
+    list.sort((a, b) => a.localeCompare(b))
+    setTags(list)
 
-    const docRef = doc(db, "userData", user.uid);
+    const docRef = doc(db, "userData", user.uid)
     await updateDoc(docRef, {
       tags: list,
     })
       .then(async () => {
-        const q = query(collection(db, "notes"));
-        const querySnapshot = await getDocs(q);
+        const q = query(collection(db, "notes"))
+        const querySnapshot = await getDocs(q)
         querySnapshot.forEach(async (document) => {
           if (user.uid === document.data().uid) {
-            let listTags = document.data().tags;
-            const indexItem = listTags.indexOf(item);
+            let listTags = document.data().tags
+            const indexItem = listTags.indexOf(item)
             if (indexItem !== -1) {
-              listTags.splice(indexItem, 1);
-              const ref = doc(db, "notes", document.id);
+              listTags.splice(indexItem, 1)
+              const ref = doc(db, "notes", document.id)
               await updateDoc(ref, {
                 tags: listTags,
               }).catch((error) => {
@@ -179,15 +179,15 @@ const CustomModal = ({
                   "delTag/updateDoc/second",
                   error.code,
                   error.message
-                );
-                setModalAction("UnknownError");
-                setActiveLoading(false);
-                setTheTagIsEditing(null);
-                return;
-              });
+                )
+                setModalAction("UnknownError")
+                setActiveLoading(false)
+                setTheTagIsEditing(null)
+                return
+              })
             }
           }
-        });
+        })
       })
       .catch((error) => {
         getUnknownErrorFirebase(
@@ -195,74 +195,74 @@ const CustomModal = ({
           "delTag/updateDoc/first",
           error.code,
           error.message
-        );
-        setModalAction("UnknownError");
-        setActiveLoading(false);
-        setTheTagIsEditing(null);
-        return;
-      });
+        )
+        setModalAction("UnknownError")
+        setActiveLoading(false)
+        setTheTagIsEditing(null)
+        return
+      })
 
-    setTheTagIsEditing(null);
-    setModalVisible(false);
-    setActiveLoading(false);
-  };
+    setTheTagIsEditing(null)
+    setModalVisible(false)
+    setActiveLoading(false)
+  }
 
   const handleLogin = () => {
     if (password) {
       const credential = EmailAuthProvider.credential(
         auth.currentUser.email,
         password
-      );
+      )
 
       reauthenticateWithCredential(auth.currentUser, credential)
         .then(() => {
-          setActiveLoading(true);
+          setActiveLoading(true)
           if (modalAction === "ConfirmPassForEmail") {
             updateEmail(auth.currentUser, newEmail)
               .then(async () => {
-                const userNow = auth.currentUser;
+                const userNow = auth.currentUser
                 userNow.reload().then(() => {
-                  setUser(userNow);
-                });
-                checkVerifiedEmail();
-                setModalAction("ChangedEmail");
-                setActiveLoading(false);
-                const docRef = doc(db, "userData", user.uid);
+                  setUser(userNow)
+                })
+                checkVerifiedEmail()
+                setModalAction("ChangedEmail")
+                setActiveLoading(false)
+                const docRef = doc(db, "userData", user.uid)
                 await updateDoc(docRef, {
                   LastTimeSendVerifiedEmail: null,
                 }).catch((error) => {
                   if (error.code === "auth/email-already-in-use") {
-                    setModalAction("EmailAlreadyInUse");
+                    setModalAction("EmailAlreadyInUse")
                   } else {
                     getUnknownErrorFirebase(
                       "CustomModal",
                       "handleLogin/updateDoc/ChangedEmail",
                       error.code,
                       error.message
-                    );
-                    setModalAction("UnknownError");
+                    )
+                    setModalAction("UnknownError")
                   }
-                });
+                })
               })
               .catch((error) => {
                 if (error.code === "auth/email-already-in-use") {
-                  setModalAction("EmailAlreadyInUse");
+                  setModalAction("EmailAlreadyInUse")
                 } else {
                   getUnknownErrorFirebase(
                     "CustomModal",
                     "handleLogin/updateEmail/ConfirmPassForEmail",
                     error.code,
                     error.message
-                  );
-                  setModalAction("UnknownError");
+                  )
+                  setModalAction("UnknownError")
                 }
-                setActiveLoading(false);
-              });
+                setActiveLoading(false)
+              })
           } else if (modalAction === "ConfirmPassForPassword") {
             updatePassword(user, newPassword)
               .then(() => {
-                setModalAction("ChangedPassword");
-                setActiveLoading(false);
+                setModalAction("ChangedPassword")
+                setActiveLoading(false)
               })
               .catch((error) => {
                 getUnknownErrorFirebase(
@@ -270,18 +270,18 @@ const CustomModal = ({
                   "handleLogin/updatePassword/ConfirmPassForPassword",
                   error.code,
                   error.message
-                );
-                setModalAction("UnknownError");
-                setActiveLoading(false);
-              });
+                )
+                setModalAction("UnknownError")
+                setActiveLoading(false)
+              })
           } else if (modalAction === "ConfirmPassForName") {
             updateProfile(auth.currentUser, {
               displayName: newName,
             })
               .then(() => {
-                setUser(auth.currentUser);
-                setModalAction("ChangedName");
-                setActiveLoading(false);
+                setUser(auth.currentUser)
+                setModalAction("ChangedName")
+                setActiveLoading(false)
               })
               .catch((error) => {
                 getUnknownErrorFirebase(
@@ -289,10 +289,10 @@ const CustomModal = ({
                   "handleLogin/updateProfile/ConfirmPassForName",
                   error.code,
                   error.message
-                );
-                setModalAction("UnknownError");
-                setActiveLoading(false);
-              });
+                )
+                setModalAction("UnknownError")
+                setActiveLoading(false)
+              })
           } else if (modalAction === "ConfirmPassForEmailPassword") {
             updatePassword(auth.currentUser, newPassword).catch((error) => {
               getUnknownErrorFirebase(
@@ -300,19 +300,19 @@ const CustomModal = ({
                 "handleLogin/updatePassword/ConfirmPassForEmailPassword",
                 error.code,
                 error.message
-              );
-              setModalAction("UnknownError");
-            });
+              )
+              setModalAction("UnknownError")
+            })
 
             setTimeout(() => {
               updateEmail(auth.currentUser, newEmail)
                 .then(async () => {
-                  const userNow = auth.currentUser;
+                  const userNow = auth.currentUser
                   userNow.reload().then(() => {
-                    setUser(userNow);
-                  });
+                    setUser(userNow)
+                  })
 
-                  const docRef = doc(db, "userData", user.uid);
+                  const docRef = doc(db, "userData", user.uid)
                   await updateDoc(docRef, {
                     LastTimeSendVerifiedEmail: null,
                   }).catch((error) => {
@@ -321,34 +321,34 @@ const CustomModal = ({
                       "handleLogin/updateDoc/ConfirmPassForEmailPassword",
                       error.code,
                       error.message
-                    );
-                    setModalAction("UnknownError");
-                  });
-                  checkVerifiedEmail();
-                  setActiveLoading(false);
-                  setModalAction("ChangedEmailPassword");
+                    )
+                    setModalAction("UnknownError")
+                  })
+                  checkVerifiedEmail()
+                  setActiveLoading(false)
+                  setModalAction("ChangedEmailPassword")
                 })
                 .catch((error) => {
                   if (error.code === "auth/email-already-in-use") {
-                    setModalAction("EmailAlreadyInUse");
+                    setModalAction("EmailAlreadyInUse")
                   } else {
                     getUnknownErrorFirebase(
                       "CustomModal",
                       "handleLogin/updateEmail/ConfirmPassForEmailPassword",
                       error.code,
                       error.message
-                    );
-                    setModalAction("UnknownError");
+                    )
+                    setModalAction("UnknownError")
                   }
-                  setActiveLoading(false);
-                });
-            }, 1000);
+                  setActiveLoading(false)
+                })
+            }, 1000)
           } else if (modalAction === "ConfirmPassForEmailPasswordName") {
             updateProfile(auth.currentUser, {
               displayName: newName,
             })
               .then(() => {
-                setUser(auth.currentUser);
+                setUser(auth.currentUser)
               })
               .catch((error) => {
                 getUnknownErrorFirebase(
@@ -356,10 +356,10 @@ const CustomModal = ({
                   "handleLogin/updateProfile/ConfirmPassForEmailPasswordName",
                   error.code,
                   error.message
-                );
-                setModalAction("UnknownError");
-                setActiveLoading(false);
-              });
+                )
+                setModalAction("UnknownError")
+                setActiveLoading(false)
+              })
             setTimeout(() => {
               updatePassword(auth.currentUser, newPassword).catch((error) => {
                 getUnknownErrorFirebase(
@@ -367,21 +367,21 @@ const CustomModal = ({
                   "handleLogin/updatePassword/ConfirmPassForEmailPasswordName",
                   error.code,
                   error.message
-                );
-                setModalAction("UnknownError");
-                setActiveLoading(false);
-              });
-            }, 1000);
+                )
+                setModalAction("UnknownError")
+                setActiveLoading(false)
+              })
+            }, 1000)
 
             setTimeout(() => {
               updateEmail(auth.currentUser, newEmail)
                 .then(async () => {
-                  const userNow = auth.currentUser;
+                  const userNow = auth.currentUser
                   userNow.reload().then(() => {
-                    setUser(userNow);
-                  });
+                    setUser(userNow)
+                  })
 
-                  const docRef = doc(db, "userData", user.uid);
+                  const docRef = doc(db, "userData", user.uid)
                   await updateDoc(docRef, {
                     LastTimeSendVerifiedEmail: null,
                   }).catch((error) => {
@@ -390,34 +390,34 @@ const CustomModal = ({
                       "handleLogin/updateDoc/ConfirmPassForEmailPasswordName",
                       error.code,
                       error.message
-                    );
-                    setModalAction("UnknownError");
-                  });
-                  checkVerifiedEmail();
-                  setModalAction("ChangedEmailPasswordName");
-                  setActiveLoading(false);
+                    )
+                    setModalAction("UnknownError")
+                  })
+                  checkVerifiedEmail()
+                  setModalAction("ChangedEmailPasswordName")
+                  setActiveLoading(false)
                 })
                 .catch((error) => {
                   if (error.code === "auth/email-already-in-use") {
-                    setModalAction("EmailAlreadyInUse");
+                    setModalAction("EmailAlreadyInUse")
                   } else {
                     getUnknownErrorFirebase(
                       "CustomModal",
                       "handleLogin/updateEmail/ConfirmPassForEmailPasswordName",
                       error.code,
                       error.message
-                    );
-                    setModalAction("UnknownError");
+                    )
+                    setModalAction("UnknownError")
                   }
-                  setActiveLoading(false);
-                });
-            }, 2000);
+                  setActiveLoading(false)
+                })
+            }, 2000)
           } else if (modalAction === "ConfirmPassForEmailName") {
             updateProfile(auth.currentUser, {
               displayName: newName,
             })
               .then(() => {
-                setUser(auth.currentUser);
+                setUser(auth.currentUser)
               })
               .catch((error) => {
                 getUnknownErrorFirebase(
@@ -425,24 +425,24 @@ const CustomModal = ({
                   "handleLogin/updateProfile/ConfirmPassForEmailName",
                   error.code,
                   error.message
-                );
-                setModalAction("UnknownError");
-              });
+                )
+                setModalAction("UnknownError")
+              })
             setTimeout(() => {
               updateEmail(auth.currentUser, newEmail)
                 .then(async () => {
-                  const userNow = auth.currentUser;
+                  const userNow = auth.currentUser
                   userNow.reload().then(() => {
-                    setUser(userNow);
-                  });
-                  checkVerifiedEmail();
-                  const docRef = doc(db, "userData", user.uid);
+                    setUser(userNow)
+                  })
+                  checkVerifiedEmail()
+                  const docRef = doc(db, "userData", user.uid)
                   await updateDoc(docRef, {
                     LastTimeSendVerifiedEmail: null,
                   })
                     .then(() => {
-                      setModalAction("ChangedEmailName");
-                      setActiveLoading(false);
+                      setModalAction("ChangedEmailName")
+                      setActiveLoading(false)
                     })
                     .catch((error) => {
                       getUnknownErrorFirebase(
@@ -450,32 +450,32 @@ const CustomModal = ({
                         "handleLogin/updateDoc/ConfirmPassForEmailName",
                         error.code,
                         error.message
-                      );
-                      setModalAction("UnknownError");
-                      setActiveLoading(false);
-                    });
+                      )
+                      setModalAction("UnknownError")
+                      setActiveLoading(false)
+                    })
                 })
                 .catch((error) => {
                   if (error.code === "auth/email-already-in-use") {
-                    setModalAction("EmailAlreadyInUse");
+                    setModalAction("EmailAlreadyInUse")
                   } else {
                     getUnknownErrorFirebase(
                       "CustomModal",
                       "handleLogin/updateEmail/ConfirmPassForEmailName",
                       error.code,
                       error.message
-                    );
-                    setModalAction("UnknownError");
+                    )
+                    setModalAction("UnknownError")
                   }
-                  setActiveLoading(false);
-                });
-            }, 1000);
+                  setActiveLoading(false)
+                })
+            }, 1000)
           } else if (modalAction === "ConfirmPassForPasswordName") {
             updateProfile(auth.currentUser, {
               displayName: newName,
             })
               .then(() => {
-                setUser(auth.currentUser);
+                setUser(auth.currentUser)
               })
               .catch((error) => {
                 getUnknownErrorFirebase(
@@ -483,15 +483,15 @@ const CustomModal = ({
                   "handleLogin/updateProfile/ConfirmPassForPasswordName",
                   error.code,
                   error.message
-                );
-                setModalAction("UnknownError");
-              });
+                )
+                setModalAction("UnknownError")
+              })
 
             setTimeout(() => {
               updatePassword(auth.currentUser, newPassword)
                 .then(() => {
-                  setModalAction("ChangedPasswordName");
-                  setActiveLoading(false);
+                  setModalAction("ChangedPasswordName")
+                  setActiveLoading(false)
                 })
                 .catch((error) => {
                   getUnknownErrorFirebase(
@@ -499,54 +499,54 @@ const CustomModal = ({
                     "handleLogin/updatePassword/ConfirmPassForPasswordName",
                     error.code,
                     error.message
-                  );
-                  setModalAction("UnknownError");
-                  setActiveLoading(false);
-                });
-            }, 1000);
+                  )
+                  setModalAction("UnknownError")
+                  setActiveLoading(false)
+                })
+            }, 1000)
           }
         })
         .catch((error) => {
           if (error.code === "auth/wrong-password") {
-            setModalAction("WrongPassword");
+            setModalAction("WrongPassword")
           } else {
             getUnknownErrorFirebase(
               "CustomModal",
               "handleLogin/reauthenticateWithCredential",
               error.code,
               error.message
-            );
-            setModalAction("UnknownError");
+            )
+            setModalAction("UnknownError")
           }
-        });
+        })
     }
-  };
+  }
 
   const sendResetPassword = () => {
-    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const checkEmail = re.test(String(email).toLowerCase());
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    const checkEmail = re.test(String(email).toLowerCase())
     if (checkEmail) {
       sendPasswordResetEmail(auth, email)
         .then(() => {
-          setModalAction("SendPasswordReset");
+          setModalAction("SendPasswordReset")
         })
         .catch((error) => {
           if (error.code === "auth/user-not-found") {
-            setModalAction("UserNotFound");
+            setModalAction("UserNotFound")
           } else {
             getUnknownErrorFirebase(
               "CustomModal",
               "sendResetPassword/sendPasswordResetEmail",
               error.code,
               error.message
-            );
-            setModalAction("UnknownError");
+            )
+            setModalAction("UnknownError")
           }
-        });
+        })
     } else {
-      setModalAction("InvalidEmail");
+      setModalAction("InvalidEmail")
     }
-  };
+  }
 
   const TitleMsg = ({ message }) => {
     return (
@@ -558,8 +558,8 @@ const CustomModal = ({
       >
         {message}
       </Text>
-    );
-  };
+    )
+  }
 
   const IconShowPass = () => {
     return (
@@ -592,8 +592,8 @@ const CustomModal = ({
           </TouchableOpacity>
         )}
       </View>
-    );
-  };
+    )
+  }
 
   const ButtonNo = () => {
     return (
@@ -601,12 +601,13 @@ const CustomModal = ({
         <ButtonCustom
           onPressFunc={() => setModalVisible(false)}
           border
+          borderColor={colors.primaryPurple}
           title="No"
           txtColor={colors.primaryPurple}
         />
       </View>
-    );
-  };
+    )
+  }
 
   const ShowMessages = () => {
     const eachMessage = {
@@ -635,12 +636,12 @@ const CustomModal = ({
       SendPasswordReset: "Password reset email sent.",
       TagAlreadyExist: "Tag already exists.",
       UnknownError: "Unknown error, we are working on a solution.",
-    };
+    }
 
-    const message = eachMessage[modalAction];
+    const message = eachMessage[modalAction]
 
-    return message ? <TitleMsg message={message} /> : null;
-  };
+    return message ? <TitleMsg message={message} /> : null
+  }
 
   const PasswordIcon = () => {
     const actionsWithIcon = [
@@ -651,10 +652,10 @@ const CustomModal = ({
       "ConfirmPassForEmailPasswordName",
       "ConfirmPassForEmailName",
       "ConfirmPassForPasswordName",
-    ];
+    ]
 
-    return actionsWithIcon.includes(modalAction) ? <IconShowPass /> : null;
-  };
+    return actionsWithIcon.includes(modalAction) ? <IconShowPass /> : null
+  }
 
   return (
     <Modal
@@ -662,7 +663,7 @@ const CustomModal = ({
       transparent={true}
       visible={modalVisible}
       onRequestClose={() => {
-        setModalVisible(!modalVisible);
+        setModalVisible(!modalVisible)
       }}
     >
       <TouchableOpacity
@@ -673,7 +674,7 @@ const CustomModal = ({
           alignItems: "center",
         }}
         onPress={() => {
-          setModalVisible(!modalVisible);
+          setModalVisible(!modalVisible)
         }}
         activeOpacity={1}
       >
@@ -691,7 +692,7 @@ const CustomModal = ({
           <ShowMessages />
           {modalAction === "ConfirmPassForName" && (
             <TextInputCustom
-              label="Please confirm your password before changing your nickame."
+              label="Please confirm your password before changing your nickame"
               text={password}
               setText={setPassword}
               forModal
@@ -700,7 +701,7 @@ const CustomModal = ({
           )}
           {modalAction === "ConfirmPassForEmail" && (
             <TextInputCustom
-              label="Please confirm your password before changing your email."
+              label="Please confirm your password before changing your email"
               text={password}
               setText={setPassword}
               forModal
@@ -709,7 +710,7 @@ const CustomModal = ({
           )}
           {modalAction === "ConfirmPassForPassword" && (
             <TextInputCustom
-              label="Please confirm your password before changing your password."
+              label="Please confirm your password before changing your password"
               text={password}
               setText={setPassword}
               forModal
@@ -718,7 +719,7 @@ const CustomModal = ({
           )}
           {modalAction === "ConfirmPassForEmailPassword" && (
             <TextInputCustom
-              label="Please confirm your password before changing your email and password."
+              label="Please confirm your password before changing your email and password"
               text={password}
               setText={setPassword}
               forModal
@@ -727,7 +728,7 @@ const CustomModal = ({
           )}
           {modalAction === "ConfirmPassForEmailPasswordName" && (
             <TextInputCustom
-              label="Please confirm your password before changing your nickname, email, and password."
+              label="Please confirm your password before changing your nickname, email, and password"
               text={password}
               setText={setPassword}
               forModal
@@ -736,7 +737,7 @@ const CustomModal = ({
           )}
           {modalAction === "ConfirmPassForEmailName" && (
             <TextInputCustom
-              label="Please confirm your password before changing your name and email."
+              label="Please confirm your password before changing your name and email"
               text={password}
               setText={setPassword}
               forModal
@@ -745,7 +746,7 @@ const CustomModal = ({
           )}
           {modalAction === "ConfirmPassForPasswordName" && (
             <TextInputCustom
-              label="Please confirm your password before changing your nickname and password."
+              label="Please confirm your password before changing your nickname and password"
               text={password}
               setText={setPassword}
               forModal
@@ -754,7 +755,7 @@ const CustomModal = ({
           )}
           {modalAction === "ConfirmEmailForSendPasswordReset" && (
             <TextInputCustom
-              label="Enter your email to recover your account."
+              label="Enter your email to recover your account"
               text={email}
               setText={setEmail}
               forModal
@@ -776,9 +777,9 @@ const CustomModal = ({
                     modalAction === "DelSelectedNotes" ||
                     modalAction === "DelNote"
                   ) {
-                    delNote();
+                    delNote()
                   } else if (modalAction === "DelTag") {
-                    delTag();
+                    delTag()
                   } else if (
                     modalAction === "ConfirmPassForEmail" ||
                     modalAction === "ConfirmPassForPassword" ||
@@ -788,13 +789,13 @@ const CustomModal = ({
                     modalAction === "ConfirmPassForPasswordName" ||
                     modalAction === "ConfirmPassForName"
                   ) {
-                    handleLogin();
+                    handleLogin()
                   } else if (
                     modalAction === "ConfirmEmailForSendPasswordReset"
                   ) {
-                    sendResetPassword();
+                    sendResetPassword()
                   } else {
-                    setModalVisible(false);
+                    setModalVisible(false)
                   }
                 }}
                 title={
@@ -819,10 +820,10 @@ const CustomModal = ({
         </View>
       </TouchableOpacity>
     </Modal>
-  );
-};
+  )
+}
 
-export default CustomModal;
+export default CustomModal
 
 const styles = StyleSheet.create({
   buttonContainer: {
@@ -831,4 +832,4 @@ const styles = StyleSheet.create({
     gap: 10,
     marginTop: 20,
   },
-});
+})

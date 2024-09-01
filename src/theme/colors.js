@@ -28,6 +28,6 @@ const colors = {
   customStatusBarModalNoteBlue: "#5f6777",
   customStatusBarModalNoteIndigo: "#645f77",
   customStatusBarModalNoteViolet: "#6c5f77",
-};
+}
 
-export default colors;
+export default colors

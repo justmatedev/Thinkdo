@@ -1,18 +1,20 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react"
 import {
   StyleSheet,
   View,
   TextInput,
   TouchableOpacity,
   ScrollView,
-} from "react-native";
+  Text,
+  Keyboard,
+} from "react-native"
 import {
   useNavigation,
   useFocusEffect,
   useRoute,
-} from "@react-navigation/native";
-import Header from "../components/Header";
-import { db } from "../firebaseConnection";
+} from "@react-navigation/native"
+import Header from "../components/Header"
+import { db } from "../firebaseConnection"
 import {
   addDoc,
   collection,
@@ -22,119 +24,144 @@ import {
   query,
   updateDoc,
   where,
-} from "firebase/firestore";
-import moment from "moment";
-import { UserContext } from "../context/userContext";
-import CustomModal from "../components/CustomModal";
-import { Ionicons } from "@expo/vector-icons";
-import colors from "../theme/colors";
-import { fontFamily, fontSize } from "../theme/font";
-import { iconSize } from "../theme/icon";
-import configureNavigationBar from "../scripts/configureNavigationBar";
-import ButtonCustom from "../components/ButtonCustom";
-import ListTags from "../components/ListTags";
-import getUnknownErrorFirebase from "../scripts/getUnknownErrorFirebase";
+} from "firebase/firestore"
+import moment from "moment"
+import { UserContext } from "../context/userContext"
+import CustomModal from "../components/CustomModal"
+import { Ionicons } from "@expo/vector-icons"
+import colors from "../theme/colors"
+import { fontFamily, fontSize } from "../theme/font"
+import { iconSize } from "../theme/icon"
+import configureNavigationBar from "../scripts/configureNavigationBar"
+import ButtonCustom from "../components/ButtonCustom"
+import ListTags from "../components/ListTags"
+import getUnknownErrorFirebase from "../scripts/getUnknownErrorFirebase"
+import Loading from "../components/Loading"
 
 export default function AddEditNote() {
-  const navigation = useNavigation();
-  const route = useRoute();
-  const data = route.params?.data;
+  const navigation = useNavigation()
+  const route = useRoute()
+  const data = route.params?.data
 
-  const { user, setStatusBarColor } = useContext(UserContext);
-  const [title, setTitle] = useState(data ? data.title : "");
-  const [content, setContent] = useState(data ? data.contentText : "");
-  const [activeTags, setActiveTags] = useState(data ? data.tags : []);
-  const [modalVisible, setModalVisible] = useState(false);
+  const { user, setStatusBarColor, setModalAction } = useContext(UserContext)
+  const [title, setTitle] = useState(data ? data.title : "")
+  const [content, setContent] = useState(data ? data.contentText : "")
+  const [activeTags, setActiveTags] = useState(data ? data.tags : [])
   const [backgroundColorNote, setBackgroundColorNote] = useState(
-    colors.backgroundLight
-  );
-  const [showOptions, setShowOptions] = useState(null);
-  const [activeLoading, setActiveLoading] = useState(false);
+    data ? data.backgroundColor : colors.backgroundLight
+  )
+  const [dataMain, setDataMain] = useState({
+    id: data ? data.id : null,
+    title: data ? data.title : "",
+    content: data ? data.contentText : "",
+    activeTags: data ? data.tags : [],
+    backgroundColorNote: data ? data.backgroundColor : colors.backgroundLight,
+  })
+
+  const [modalVisible, setModalVisible] = useState(false)
+  const [showOptions, setShowOptions] = useState(false)
+  const [activeLoading, setActiveLoading] = useState(false)
+  const [hasLoaded, setHasLoaded] = useState(false)
+  const [lastEditTime, setLastEditTime] = useState(
+    data ? data.lastEditTime : null
+  )
 
   useFocusEffect(
     React.useCallback(() => {
+      configureNavigationBar(dataMain.backgroundColorNote)
+      setStatusBarColor(dataMain.backgroundColorNote)
       const unsubscribe = navigation.addListener("beforeRemove", () => {
-        setStatusBarColor(colors.backgroundLight);
-        setBackgroundColorNote(colors.backgroundLight);
-        return true;
-      });
-
-      return unsubscribe;
+        return true
+      })
+      return unsubscribe
     }, [navigation])
-  );
+  )
 
   useEffect(() => {
     if (data) {
-      setBackgroundColorNote(returnHexColor(data.backgroundColor));
-      setStatusBarColor(returnHexColor(data.backgroundColor));
-      configureNavigationBar(returnHexColor(data.backgroundColor));
+      setStatusBarColor(data.backgroundColor)
+      configureNavigationBar(data.backgroundColor)
     } else {
-      setStatusBarColor(colors.backgroundLight);
-      configureNavigationBar(colors.backgroundLight);
-      setBackgroundColorNote(colors.backgroundLight);
+      setStatusBarColor(colors.backgroundLight)
+      configureNavigationBar(colors.backgroundLight)
     }
-  }, []);
+  }, [])
 
-  const returnHexColor = (color) => {
-    if (color === "red") {
-      return colors.customBackgroundNoteRed;
-    } else if (color === "orange") {
-      return colors.customBackgroundNoteOrange;
-    } else if (color === "yellow") {
-      return colors.customBackgroundNoteYellow;
-    } else if (color === "green") {
-      return colors.customBackgroundNoteGreen;
-    } else if (color === "blue") {
-      return colors.customBackgroundNoteBlue;
-    } else if (color === "indigo") {
-      return colors.customBackgroundNoteIndigo;
-    } else if (color === "violet") {
-      return colors.customBackgroundNoteViolet;
-    } else if (color === "default") {
-      return colors.backgroundLight;
+  useEffect(() => {
+    if (hasLoaded) {
+      const saveNote = async () => {
+        if (dataMain.id) {
+          await handleUpdate()
+        } else {
+          await handleAdd()
+        }
+      }
+
+      const timeoutId = setTimeout(saveNote, 2000)
+
+      return () => clearTimeout(timeoutId)
+    } else {
+      setHasLoaded(true)
     }
-  };
+  }, [title, content, backgroundColorNote, activeTags])
+
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener(
+      "keyboardDidShow",
+      () => {
+        setShowOptions(false)
+      }
+    )
+    return () => {
+      keyboardDidShowListener.remove()
+    }
+  }, [showOptions])
 
   const returnNameColor = (color) => {
     if (color === colors.customBackgroundNoteRed) {
-      return "red";
+      return "red"
     } else if (color === colors.customBackgroundNoteOrange) {
-      return "orange";
+      return "orange"
     } else if (color === colors.customBackgroundNoteYellow) {
-      return "yellow";
+      return "yellow"
     } else if (color === colors.customBackgroundNoteGreen) {
-      return "green";
+      return "green"
     } else if (color === colors.customBackgroundNoteBlue) {
-      return "blue";
+      return "blue"
     } else if (color === colors.customBackgroundNoteIndigo) {
-      return "indigo";
+      return "indigo"
     } else if (color === colors.customBackgroundNoteViolet) {
-      return "violet";
+      return "violet"
     } else if (color === colors.backgroundLight) {
-      return "default";
+      return "default"
     }
-  };
+  }
 
   const handleAdd = async () => {
-    if (title || content) {
-      setActiveLoading(true);
-      const now = moment().format("YYYY-MM-DD HH:mm:ss");
-      let orderChanged = 1;
+    if (
+      title !== dataMain.title ||
+      content !== dataMain.content ||
+      activeTags.toString() !== dataMain.activeTags.toString() ||
+      backgroundColorNote !== dataMain.backgroundColorNote
+    ) {
+      setActiveLoading(true)
+      const now = moment().format("YYYY-MM-DD HH:mm:ss")
+      let orderChanged = 1
 
       const q = query(
         collection(db, "notes"),
         orderBy("order"),
         where("uid", "==", user.uid)
-      );
-      const querySnapshot = await getDocs(q);
+      )
+      const querySnapshot = await getDocs(q)
       for (let i = 0; i < querySnapshot.docs.length; i++) {
-        const item = querySnapshot.docs[i];
-        const noteRef = doc(db, "notes", item.id);
+        const item = querySnapshot.docs[i]
+        const noteRef = doc(db, "notes", item.id)
         await updateDoc(noteRef, {
           order: orderChanged,
         })
           .then(() => {
-            orderChanged += 1;
+            orderChanged += 1
           })
           .catch((error) => {
             getUnknownErrorFirebase(
@@ -142,52 +169,59 @@ export default function AddEditNote() {
               "handleAdd/updateDoc",
               error.code,
               error.message
-            );
-            setModalAction("UnknownError");
-            setModalVisible(true);
-          });
+            )
+            setModalAction("UnknownError")
+            setModalVisible(true)
+          })
       }
 
-      await addDoc(collection(db, "notes"), {
-        backgroundColor: returnNameColor(backgroundColorNote),
-        contentText: content,
-        createdAt: now,
-        lastEditTime: now,
-        order: 0,
-        tags: activeTags,
-        title: title,
-        uid: user.uid,
-      })
-        .then(async () => {
-          navigation.goBack();
+      try {
+        const docRef = await addDoc(collection(db, "notes"), {
+          backgroundColor: returnNameColor(backgroundColorNote),
+          contentText: content,
+          createdAt: now,
+          lastEditTime: now,
+          order: 0,
+          tags: activeTags,
+          title: title,
+          uid: user.uid,
         })
-        .catch((error) => {
-          getUnknownErrorFirebase(
-            "AddEditNote",
-            "handleAdd/addDoc",
-            error.code,
-            error.message
-          );
-          setModalAction("UnknownError");
-          setModalVisible(true);
-        });
 
-      setActiveLoading(false);
+        setDataMain({
+          id: docRef.id,
+          title: title,
+          content: content,
+          backgroundColorNote: returnNameColor(backgroundColorNote),
+          activeTags: activeTags,
+        })
+        setLastEditTime(now)
+      } catch (error) {
+        getUnknownErrorFirebase(
+          "AddEditNote",
+          "handleAdd/addDoc",
+          error.code,
+          error.message
+        )
+        setModalAction("UnknownError")
+        setModalVisible(true)
+      }
+
+      setActiveLoading(false)
     }
-  };
+  }
 
   const handleUpdate = async () => {
     if (
-      data.backgroundColor !== backgroundColorNote ||
-      data.contentText !== content ||
-      data.tags !== activeTags ||
-      data.title !== title
+      title !== dataMain.title ||
+      content !== dataMain.content ||
+      activeTags.toString() !== dataMain.activeTags.toString() ||
+      backgroundColorNote !== dataMain.backgroundColorNote
     ) {
-      setActiveLoading(true);
+      setActiveLoading(true)
 
-      const now = moment().format("YYYY-MM-DD HH:mm:ss");
+      const now = moment().format("YYYY-MM-DD HH:mm:ss")
 
-      const noteRef = doc(db, "notes", data.id);
+      const noteRef = doc(db, "notes", dataMain.id)
       await updateDoc(noteRef, {
         backgroundColor: returnNameColor(backgroundColorNote),
         contentText: content,
@@ -197,22 +231,30 @@ export default function AddEditNote() {
         title: title,
       })
         .then(async () => {
-          let orderChanged = 1;
+          setDataMain((prevData) => ({
+            ...prevData,
+            title: title,
+            content: content,
+            backgroundColorNote: returnNameColor(backgroundColorNote),
+            activeTags: activeTags,
+          }))
+          setLastEditTime(now)
+          let orderChanged = 1
           const q = query(
             collection(db, "notes"),
             orderBy("order"),
             where("uid", "==", user.uid)
-          );
-          const querySnapshot = await getDocs(q);
+          )
+          const querySnapshot = await getDocs(q)
           for (let i = 0; i < querySnapshot.docs.length; i++) {
-            const item = querySnapshot.docs[i];
-            if (item.id != data.id) {
-              const noteRef = doc(db, "notes", item.id);
+            const item = querySnapshot.docs[i]
+            if (item.id != dataMain.id) {
+              const noteRef = doc(db, "notes", item.id)
               await updateDoc(noteRef, {
                 order: orderChanged,
               })
                 .then(() => {
-                  orderChanged += 1;
+                  orderChanged += 1
                 })
                 .catch((error) => {
                   getUnknownErrorFirebase(
@@ -220,13 +262,12 @@ export default function AddEditNote() {
                     "handleUpdate/updateDoc/updateDoc/second",
                     error.code,
                     error.message
-                  );
-                  setModalAction("UnknownError");
-                  setModalVisible(true);
-                });
+                  )
+                  setModalAction("UnknownError")
+                  setModalVisible(true)
+                })
             }
           }
-          navigation.goBack();
         })
         .catch((error) => {
           getUnknownErrorFirebase(
@@ -234,21 +275,20 @@ export default function AddEditNote() {
             "handleUpdate/updateDoc/first",
             error.code,
             error.message
-          );
-          setModalAction("UnknownError");
-          setModalVisible(true);
-        });
-
-      setActiveLoading(false);
+          )
+          setModalAction("UnknownError")
+          setModalVisible(true)
+        })
+      setActiveLoading(false)
     }
-  };
+  }
 
   const ColorComponent = ({ colorValue, defaultColor }) => {
     const changeColor = () => {
-      setBackgroundColorNote(colorValue);
-      setStatusBarColor(colorValue);
-      configureNavigationBar(colorValue);
-    };
+      setBackgroundColorNote(colorValue)
+      setStatusBarColor(colorValue)
+      configureNavigationBar(colorValue)
+    }
     return (
       <TouchableOpacity
         activeOpacity={0.7}
@@ -257,42 +297,44 @@ export default function AddEditNote() {
           width: 30,
           height: 30,
           borderRadius: 30,
-          borderColor: colors.borderColorLight,
+          borderColor:
+            backgroundColorNote === colorValue
+              ? colors.primaryPurple
+              : colors.borderColorLight,
           borderWidth: 1,
           position: "relative",
           overflow: "hidden",
+          alignItems: "center",
+          justifyContent: "center",
         }}
         onPress={changeColor}
       >
         {defaultColor && (
-          <>
-            <View
-              style={{
-                position: "absolute",
-                width: 1.1,
-                height: "141.4%",
-                backgroundColor: colors.borderColorLight,
-                transform: [{ rotate: "45deg" }],
-                top: -6,
-                left: "50%",
-              }}
-            />
-            <View
-              style={{
-                position: "absolute",
-                width: 1.1,
-                height: "141.4%",
-                backgroundColor: colors.borderColorLight,
-                transform: [{ rotate: "-45deg" }],
-                top: -6,
-                right: "50%",
-              }}
-            />
-          </>
+          <Ionicons
+            name="close-outline"
+            size={24}
+            color={colors.borderColorLight}
+          />
         )}
       </TouchableOpacity>
-    );
-  };
+    )
+  }
+
+  const formatDateTime = (time) => {
+    const receivedTime = moment(time, "YYYY-MM-DD HH:mm:ss")
+    const monthName = receivedTime.format("MMM")
+
+    const now = moment()
+    if (receivedTime.year() === now.year()) {
+      if (receivedTime.day() === now.day()) {
+        return receivedTime.format("HH:mm")
+      } else {
+        return `${receivedTime.date()} ${monthName}`
+      }
+    } else {
+      return `${receivedTime.day()} ${monthName}, ${receivedTime.year()}`
+    }
+  }
 
   return (
     <>
@@ -305,9 +347,7 @@ export default function AddEditNote() {
         style={[
           styles.fullScreen,
           {
-            backgroundColor: backgroundColorNote
-              ? backgroundColorNote
-              : colors.backgroundLight,
+            backgroundColor: backgroundColorNote,
           },
         ]}
       >
@@ -318,11 +358,15 @@ export default function AddEditNote() {
               fontSize: fontSize.large,
               fontFamily: fontFamily.PoppinsSemiBold600,
               height: 50,
+              marginTop: 10,
             },
           ]}
           placeholder="Title"
           value={title}
-          onChangeText={(text) => setTitle(text)}
+          onChangeText={(text) => {
+            showOptions && setShowOptions(false)
+            setTitle(text)
+          }}
           cursorColor={colors.primaryPurpleAlfa}
           selectionColor={colors.primaryPurpleAlfa}
         />
@@ -337,152 +381,151 @@ export default function AddEditNote() {
           ]}
           placeholder="Content"
           value={content}
-          onChangeText={(text) => setContent(text)}
+          onChangeText={(text) => {
+            showOptions && setShowOptions(false)
+            setContent(text)
+          }}
           textAlignVertical="top"
           multiline
           cursorColor={colors.primaryPurpleAlfa}
           selectionColor={colors.primaryPurpleAlfa}
         />
 
-        <View style={styles.options}>
-          {!showOptions && (
-            <>
-              <TouchableOpacity onPress={() => setShowOptions("tags")}>
-                <Ionicons
-                  name="pricetags-outline"
-                  size={iconSize.regular}
-                  color={colors.primaryPurple}
-                  style={{
-                    padding: 5,
-                  }}
-                />
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => setShowOptions("colors")}>
-                <Ionicons
-                  name="color-palette-outline"
-                  size={iconSize.regular}
-                  color={colors.primaryPurple}
-                  style={{
-                    padding: 5,
-                  }}
-                />
-              </TouchableOpacity>
-            </>
-          )}
-          {showOptions === "tags" && (
-            <View
-              style={{
-                flexDirection: "row",
-                width: "100%",
-                justifyContent: "space-between",
-                alignItems: "center",
+        {showOptions && (
+          <View
+            style={{
+              gap: 10,
+              marginBottom: 10,
+              paddingHorizontal: 10,
+              backgroundColor: "rgba(255,255,255,0.3)",
+              paddingVertical: 10,
+              borderRadius: 20,
+              marginHorizontal: 10,
+              borderColor: colors.borderColorLight,
+              borderWidth: 1,
+            }}
+          >
+            <ListTags activeTags={activeTags} setActiveTags={setActiveTags} />
+            <ScrollView
+              horizontal
+              contentContainerStyle={{
                 gap: 10,
               }}
+              showsVerticalScrollIndicator={false}
+              style={{ flexGrow: 0 }}
             >
-              <TouchableOpacity onPress={() => setShowOptions(null)}>
-                <Ionicons
-                  name="close-outline"
-                  size={iconSize.regular}
-                  color={colors.buttonRed}
-                  style={{
-                    padding: 5,
-                  }}
-                />
-              </TouchableOpacity>
-              <ListTags activeTags={activeTags} setActiveTags={setActiveTags} />
-            </View>
-          )}
-          {showOptions === "colors" && (
-            <View
-              style={{
-                flexDirection: "row",
-                width: "100%",
-                justifyContent: "space-between",
-                alignItems: "center",
-                gap: 10,
-              }}
-            >
-              <ScrollView
-                horizontal
-                contentContainerStyle={{ gap: 10 }}
-                showsVerticalScrollIndicator={false}
-              >
-                <ColorComponent
-                  colorValue={colors.backgroundLight}
-                  defaultColor
-                />
-                <ColorComponent colorValue={colors.customBackgroundNoteRed} />
-                <ColorComponent
-                  colorValue={colors.customBackgroundNoteOrange}
-                />
-                <ColorComponent
-                  colorValue={colors.customBackgroundNoteYellow}
-                />
-                <ColorComponent colorValue={colors.customBackgroundNoteGreen} />
-                <ColorComponent colorValue={colors.customBackgroundNoteBlue} />
-                <ColorComponent
-                  colorValue={colors.customBackgroundNoteIndigo}
-                />
-                <ColorComponent
-                  colorValue={colors.customBackgroundNoteViolet}
-                />
-              </ScrollView>
-              <TouchableOpacity onPress={() => setShowOptions(null)}>
-                <Ionicons
-                  name="close-outline"
-                  size={iconSize.regular}
-                  color={colors.buttonRed}
-                  style={{
-                    padding: 5,
-                  }}
-                />
-              </TouchableOpacity>
-            </View>
-          )}
-        </View>
-
-        <ButtonCustom
-          title={data ? "Update" : "Add"}
-          background={colors.primaryPurple}
-          onPressFunc={() => {
-            if (!activeLoading) {
-              if (data) {
-                handleUpdate();
-              } else {
-                handleAdd();
-              }
-            }
+              <ColorComponent
+                colorValue={colors.backgroundLight}
+                defaultColor
+              />
+              <ColorComponent colorValue={colors.customBackgroundNoteRed} />
+              <ColorComponent colorValue={colors.customBackgroundNoteOrange} />
+              <ColorComponent colorValue={colors.customBackgroundNoteYellow} />
+              <ColorComponent colorValue={colors.customBackgroundNoteGreen} />
+              <ColorComponent colorValue={colors.customBackgroundNoteBlue} />
+              <ColorComponent colorValue={colors.customBackgroundNoteIndigo} />
+              <ColorComponent colorValue={colors.customBackgroundNoteViolet} />
+            </ScrollView>
+            {dataMain.id && (
+              <ButtonCustom
+                icon={
+                  <Ionicons
+                    name="trash-outline"
+                    size={iconSize.regular}
+                    color="red"
+                  />
+                }
+                border
+                borderColor="red"
+                onPressFunc={() => {
+                  setModalAction("DelNote")
+                  setModalVisible(true)
+                }}
+              />
+            )}
+          </View>
+        )}
+        <TouchableOpacity
+          onPress={() => {
+            Keyboard.dismiss()
+            setTimeout(() => {
+              setShowOptions(!showOptions)
+            }, 100)
           }}
-          active={activeLoading}
-        />
+          style={[styles.options, { borderWidth: 0 }]}
+          activeOpacity={1}
+        >
+          <TouchableOpacity
+            onPress={() => {
+              Keyboard.dismiss()
+              setTimeout(() => {
+                setShowOptions(!showOptions)
+              }, 100)
+            }}
+          >
+            <Ionicons
+              name={showOptions ? "chevron-down-outline" : "chevron-up-outline"}
+              size={iconSize.regular}
+              color={colors.primaryPurple}
+            />
+          </TouchableOpacity>
+          {lastEditTime && (
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+              }}
+            >
+              <Ionicons
+                name="time-outline"
+                size={iconSize.small}
+                color="black"
+                style={{ marginEnd: 5 }}
+              />
+
+              {activeLoading ? (
+                <Loading color={colors.primaryPurple} />
+              ) : (
+                <Text
+                  style={{
+                    fontSize: fontSize.small,
+                    fontFamily: fontFamily.PoppinsRegularItalic400,
+                    paddingTop: 3,
+                  }}
+                >
+                  {formatDateTime(lastEditTime)}
+                </Text>
+              )}
+            </View>
+          )}
+        </TouchableOpacity>
 
         <CustomModal
           modalVisible={modalVisible}
           setModalVisible={setModalVisible}
-          idNote={data ? data.id : null}
+          idNote={dataMain.id}
         />
       </View>
     </>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
   fullScreen: {
     flex: 1,
-    padding: 10,
-    paddingBottom: 0,
   },
   options: {
-    flexDirection: "row",
+    flexDirection: "row-reverse",
     width: "100%",
-    marginBottom: 10,
+    paddingVertical: 10,
     justifyContent: "space-between",
-    height: 40,
     alignItems: "center",
+    paddingHorizontal: 20,
+    height: 50,
   },
   input: {
-    marginVertical: 5,
-    padding: 10,
+    marginHorizontal: 10,
+    paddingHorizontal: 10,
     borderRadius: 10,
     borderColor: colors.borderColorLight,
   },
@@ -503,4 +546,8 @@ const styles = StyleSheet.create({
     borderColor: colors.borderColorLight,
     borderWidth: 1,
   },
-});
+  text: {
+    fontFamily: fontFamily.PoppinsRegular400,
+    fontSize: fontSize.regular,
+  },
+})

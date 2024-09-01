@@ -1,8 +1,8 @@
-import { StyleSheet, View, TouchableOpacity } from "react-native";
-import React from "react";
-import { iconSize } from "../theme/icon";
-import colors from "../theme/colors";
-import { Ionicons } from "@expo/vector-icons";
+import { StyleSheet, View, TouchableOpacity } from "react-native"
+import React from "react"
+import { iconSize } from "../theme/icon"
+import colors from "../theme/colors"
+import { Ionicons } from "@expo/vector-icons"
 
 const CloudButton = ({ onPress }) => {
   return (
@@ -27,10 +27,10 @@ const CloudButton = ({ onPress }) => {
         color={colors.backgroundLight}
       />
     </TouchableOpacity>
-  );
-};
+  )
+}
 
-export default CloudButton;
+export default CloudButton
 
 const styles = StyleSheet.create({
   container: {
@@ -61,4 +61,4 @@ const styles = StyleSheet.create({
     backgroundColor: "red",
     backgroundColor: colors.primaryPurple,
   },
-});
+})

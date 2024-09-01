@@ -6,31 +6,29 @@ import {
   Platform,
   View,
   Image,
-} from "react-native";
-import { TouchableOpacity } from "react-native-gesture-handler";
-import { useNavigation } from "@react-navigation/native";
-import { useContext, useEffect } from "react";
-import { UserContext } from "../context/userContext";
-import { Ionicons } from "@expo/vector-icons";
-import { StatusBar as StatusBarExpo } from "expo-status-bar";
-import colors from "../theme/colors";
-import { iconSize, iconSource } from "../theme/icon";
-import { fontFamily, fontSize } from "../theme/font";
+} from "react-native"
+import { TouchableOpacity } from "react-native-gesture-handler"
+import { useNavigation } from "@react-navigation/native"
+import { useContext, useEffect } from "react"
+import { UserContext } from "../context/userContext"
+import { Ionicons } from "@expo/vector-icons"
+import { StatusBar as StatusBarExpo } from "expo-status-bar"
+import colors from "../theme/colors"
+import { iconSize, iconSource } from "../theme/icon"
+import { fontFamily, fontSize } from "../theme/font"
 
 export default function Header({
   fromHome,
   fromAddEditNote,
   fromSettings,
-  setModalVisible,
-  canDelete,
   settingsTitle,
 }) {
-  const navigation = useNavigation();
-  const { user, statusBarColor, setModalAction } = useContext(UserContext);
+  const navigation = useNavigation()
+  const { user, statusBarColor, setModalAction } = useContext(UserContext)
 
   useEffect(() => {
-    colorBackground();
-  }, [statusBarColor]);
+    colorBackground()
+  }, [statusBarColor])
 
   const colorMapping = {
     [colors.customStatusBarModalNoteRed]: colors.customBackgroundNoteRed,
@@ -49,9 +47,9 @@ export default function Header({
     [colors.customBackgroundNoteViolet]: colors.customBackgroundNoteViolet,
     [colors.backgroundLightStatusBarModal]: colors.backgroundLight,
     [colors.backgroundLight]: colors.backgroundLight,
-  };
+  }
 
-  const colorBackground = () => colorMapping[statusBarColor] || null;
+  const colorBackground = () => colorMapping[statusBarColor] || null
 
   return (
     <SafeAreaView
@@ -71,7 +69,7 @@ export default function Header({
             >
               <Image
                 style={{ height: 35, width: 64, marginRight: 10 }}
-                source={iconSource.logoRoxo}
+                source={iconSource.logo}
               />
               <Text
                 style={{
@@ -84,7 +82,7 @@ export default function Header({
                 Hi, {user.displayName}!
               </Text>
             </View>
-            <TouchableOpacity onPress={() => navigation.navigate("Settings")}>
+            <TouchableOpacity onPress={() => navigation.navigate("Menu")}>
               <Ionicons
                 name="menu-outline"
                 size={iconSize.regular}
@@ -108,33 +106,6 @@ export default function Header({
                 }}
               />
             </TouchableOpacity>
-            {canDelete ? (
-              <TouchableOpacity
-                onPress={() => {
-                  setModalAction("DelNote");
-                  setModalVisible(true);
-                }}
-              >
-                <Ionicons
-                  name="trash-outline"
-                  size={iconSize.regular}
-                  color="red"
-                  style={{
-                    padding: 5,
-                  }}
-                />
-              </TouchableOpacity>
-            ) : (
-              <Text
-                style={{
-                  fontSize: fontSize.regular,
-                  fontFamily: fontFamily.PoppinsRegular400,
-                  padding: 5,
-                }}
-              >
-                New Note
-              </Text>
-            )}
           </>
         )}
         {fromSettings && (
@@ -162,7 +133,7 @@ export default function Header({
         )}
       </View>
     </SafeAreaView>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
@@ -176,4 +147,4 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingTop: 10,
   },
-});
+})

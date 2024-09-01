@@ -4,9 +4,9 @@ import {
   View,
   TextInput,
   TouchableOpacity,
-} from "react-native";
-import React, { useContext, useEffect, useState } from "react";
-import { UserContext } from "../context/userContext";
+} from "react-native"
+import React, { useContext, useEffect, useState } from "react"
+import { UserContext } from "../context/userContext"
 import {
   collection,
   doc,
@@ -14,14 +14,14 @@ import {
   query,
   updateDoc,
   where,
-} from "firebase/firestore";
-import { db } from "../firebaseConnection";
-import colors from "../theme/colors";
-import { Ionicons } from "@expo/vector-icons";
-import { fontFamily, fontSize } from "../theme/font";
-import { iconSize } from "../theme/icon";
-import Loading from "./Loading";
-import getUnknownErrorFirebase from "../scripts/getUnknownErrorFirebase";
+} from "firebase/firestore"
+import { db } from "../firebaseConnection"
+import colors from "../theme/colors"
+import { Ionicons } from "@expo/vector-icons"
+import { fontFamily, fontSize } from "../theme/font"
+import { iconSize } from "../theme/icon"
+import Loading from "./Loading"
+import getUnknownErrorFirebase from "../scripts/getUnknownErrorFirebase"
 
 const TagsControl = ({
   item,
@@ -29,58 +29,55 @@ const TagsControl = ({
   setTheTagIsEditing,
   setModalVisible,
 }) => {
-  const { user, tags, setTags, setModalAction } = useContext(UserContext);
-  const [tagNameItem, setTagNameItem] = useState(item);
-  const [editItem, setEditItem] = useState(false);
-  const [activeLoading, setActiveLoading] = useState(false);
-  const [isFocused, setIsFocused] = useState(false);
+  const { user, tags, setTags, setModalAction } = useContext(UserContext)
+  const [tagNameItem, setTagNameItem] = useState(item)
+  const [editItem, setEditItem] = useState(false)
+  const [activeLoading, setActiveLoading] = useState(false)
+  const [isFocused, setIsFocused] = useState(false)
 
   useEffect(() => {
     if (theTagIsEditing === item) {
-      setEditItem(true);
+      setEditItem(true)
     } else {
-      setEditItem(false);
+      setEditItem(false)
     }
-    setTagNameItem(item);
-  }, [theTagIsEditing, item]);
+    setTagNameItem(item)
+  }, [theTagIsEditing, item])
 
   const confirmEditing = async (oldTag, newTag) => {
     if (item != tagNameItem) {
-      setActiveLoading(true);
+      setActiveLoading(true)
       if (tags.includes(tagNameItem)) {
-        setActiveLoading(false);
-        setModalVisible(true);
-        setModalAction("TagAlreadyExist");
-        return;
+        setActiveLoading(false)
+        setModalVisible(true)
+        setModalAction("TagAlreadyExist")
+        return
       }
 
-      let list = tags;
-      const indexItem = list.indexOf(oldTag);
+      let list = tags
+      const indexItem = list.indexOf(oldTag)
       if (indexItem !== -1) {
-        list[indexItem] = newTag;
+        list[indexItem] = newTag
       }
 
-      list.sort((a, b) => a.localeCompare(b));
-      setTags(list);
+      list.sort((a, b) => a.localeCompare(b))
+      setTags(list)
 
-      const docRef = doc(db, "userData", user.uid);
+      const docRef = doc(db, "userData", user.uid)
       await updateDoc(docRef, {
         tags: list,
       })
         .then(async () => {
-          const q = query(
-            collection(db, "notes"),
-            where("uid", "==", user.uid)
-          );
-          const querySnapshot = await getDocs(q);
+          const q = query(collection(db, "notes"), where("uid", "==", user.uid))
+          const querySnapshot = await getDocs(q)
           querySnapshot.forEach(async (document) => {
-            let listOldTags = document.data().tags;
-            const indexItem = listOldTags.indexOf(oldTag);
+            let listOldTags = document.data().tags
+            const indexItem = listOldTags.indexOf(oldTag)
             if (indexItem !== -1) {
-              listOldTags[indexItem] = newTag;
-              listOldTags.sort((a, b) => a.localeCompare(b));
+              listOldTags[indexItem] = newTag
+              listOldTags.sort((a, b) => a.localeCompare(b))
 
-              const noteRef = doc(db, "notes", document.id);
+              const noteRef = doc(db, "notes", document.id)
               await updateDoc(noteRef, {
                 tags: listOldTags,
               }).catch((error) => {
@@ -89,12 +86,12 @@ const TagsControl = ({
                   "confirmEditing/updateDoc/second",
                   error.code,
                   error.message
-                );
-                setModalVisible(true);
-                setModalAction("UnknownError");
-              });
+                )
+                setModalVisible(true)
+                setModalAction("UnknownError")
+              })
             }
-          });
+          })
         })
         .catch((error) => {
           getUnknownErrorFirebase(
@@ -102,21 +99,21 @@ const TagsControl = ({
             "confirmEditing/updateDoc/first",
             error.code,
             error.message
-          );
-          setModalVisible(true);
-          setModalAction("UnknownError");
-        });
+          )
+          setModalVisible(true)
+          setModalAction("UnknownError")
+        })
 
-      setActiveLoading(false);
+      setActiveLoading(false)
     }
 
-    setTheTagIsEditing(null);
-  };
+    setTheTagIsEditing(null)
+  }
 
   const delTag = async () => {
-    setModalVisible(true);
-    setModalAction("DelTag");
-  };
+    setModalVisible(true)
+    setModalAction("DelTag")
+  }
 
   return (
     <View
@@ -164,7 +161,7 @@ const TagsControl = ({
             <TouchableOpacity
               onPress={() => {
                 if (!activeLoading) {
-                  confirmEditing(item, tagNameItem);
+                  confirmEditing(item, tagNameItem)
                 }
               }}
             >
@@ -194,7 +191,7 @@ const TagsControl = ({
             paddingStart: 5,
           }}
           onPress={() => {
-            setTheTagIsEditing(item);
+            setTheTagIsEditing(item)
           }}
         >
           <Text
@@ -209,7 +206,7 @@ const TagsControl = ({
           </Text>
           <TouchableOpacity
             onPress={() => {
-              setTheTagIsEditing(item);
+              setTheTagIsEditing(item)
             }}
           >
             <Ionicons
@@ -222,10 +219,10 @@ const TagsControl = ({
         </TouchableOpacity>
       )}
     </View>
-  );
-};
+  )
+}
 
-export default TagsControl;
+export default TagsControl
 
 const styles = StyleSheet.create({
   container: {
@@ -248,4 +245,4 @@ const styles = StyleSheet.create({
     padding: 10,
     paddingStart: 17.5,
   },
-});
+})

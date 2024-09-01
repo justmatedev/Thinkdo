@@ -1,25 +1,25 @@
-import { StyleSheet, FlatList, TouchableOpacity } from "react-native";
-import React, { useContext } from "react";
-import { Ionicons } from "@expo/vector-icons";
-import Tags from "./Tags";
-import { UserContext } from "../context/userContext";
-import { iconSize } from "../theme/icon";
-import colors from "../theme/colors";
-import { useNavigation } from "@react-navigation/native";
+import { StyleSheet, FlatList, TouchableOpacity } from "react-native"
+import React, { useContext } from "react"
+import { Ionicons } from "@expo/vector-icons"
+import Tags from "./Tags"
+import { UserContext } from "../context/userContext"
+import { iconSize } from "../theme/icon"
+import colors from "../theme/colors"
+import { useNavigation } from "@react-navigation/native"
 
 const ListTags = ({ forceUpdate, activeTags, searchNotes, setActiveTags }) => {
-  const navigation = useNavigation();
-  const { tags } = useContext(UserContext);
+  const navigation = useNavigation()
+  const { tags } = useContext(UserContext)
 
   const activeTagsFunction = (tag) => {
     setActiveTags((prevTags) => {
       if (prevTags.includes(tag)) {
-        return prevTags.filter((t) => t !== tag).sort();
+        return prevTags.filter((t) => t !== tag).sort()
       } else {
-        return [...prevTags, tag].sort();
+        return [...prevTags, tag].sort()
       }
-    });
-  };
+    })
+  }
   return (
     <FlatList
       data={tags}
@@ -32,7 +32,7 @@ const ListTags = ({ forceUpdate, activeTags, searchNotes, setActiveTags }) => {
               searchNotes ? searchNotes("tags", item) : activeTagsFunction(item)
             }
           />
-        );
+        )
       }}
       horizontal
       extraData={forceUpdate}
@@ -51,10 +51,10 @@ const ListTags = ({ forceUpdate, activeTags, searchNotes, setActiveTags }) => {
         </TouchableOpacity>
       }
     />
-  );
-};
+  )
+}
 
-export default ListTags;
+export default ListTags
 
 const styles = StyleSheet.create({
   footerContainer: {
@@ -66,4 +66,4 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.borderColorLight,
   },
-});
+})

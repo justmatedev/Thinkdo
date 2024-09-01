@@ -5,60 +5,70 @@ import {
   FlatList,
   TextInput,
   TouchableOpacity,
-} from "react-native";
-import React, { useContext, useState } from "react";
-import Header from "../components/Header";
-import { fontFamily, fontSize } from "../theme/font";
-import colors from "../theme/colors";
-import { UserContext } from "../context/userContext";
-import TagsControl from "../components/TagsControl";
-import CustomModal from "../components/CustomModal";
-import { Ionicons } from "@expo/vector-icons";
-import { iconSize } from "../theme/icon";
-import Loading from "../components/Loading";
-import { doc, updateDoc } from "firebase/firestore";
-import { db } from "../firebaseConnection";
-import getUnknownErrorFirebase from "../scripts/getUnknownErrorFirebase";
+} from "react-native"
+import React, { useContext, useState } from "react"
+import Header from "../components/Header"
+import { fontFamily, fontSize } from "../theme/font"
+import colors from "../theme/colors"
+import { UserContext } from "../context/userContext"
+import TagsControl from "../components/TagsControl"
+import CustomModal from "../components/CustomModal"
+import { Ionicons } from "@expo/vector-icons"
+import { iconSize } from "../theme/icon"
+import Loading from "../components/Loading"
+import { doc, updateDoc } from "firebase/firestore"
+import { db } from "../firebaseConnection"
+import getUnknownErrorFirebase from "../scripts/getUnknownErrorFirebase"
+import configureNavigationBar from "../scripts/configureNavigationBar"
+import { useFocusEffect } from "@react-navigation/native"
 
 const SettingsTags = () => {
-  const { tags, user, setTags, setModalAction } = useContext(UserContext);
-  const [tagName, setTagName] = useState("");
-  const [theTagIsEditing, setTheTagIsEditing] = useState(null);
-  const [modalVisible, setModalVisible] = useState(false);
-  const [activeLoading, setActiveLoading] = useState(false);
-  const [isFocused, setIsFocused] = useState(false);
+  const { tags, user, setTags, setModalAction, setStatusBarColor } =
+    useContext(UserContext)
+  const [tagName, setTagName] = useState("")
+  const [theTagIsEditing, setTheTagIsEditing] = useState(null)
+  const [modalVisible, setModalVisible] = useState(false)
+  const [activeLoading, setActiveLoading] = useState(false)
+  const [isFocused, setIsFocused] = useState(false)
+
+  useFocusEffect(
+    React.useCallback(() => {
+      configureNavigationBar(colors.backgroundLight)
+      setStatusBarColor(colors.backgroundLight)
+    }, [])
+  )
 
   const addTag = async () => {
     if (tagName) {
-      setActiveLoading(true);
+      setActiveLoading(true)
       if (tags.includes(tagName)) {
-        setActiveLoading(false);
-        setModalVisible(true);
-        setModalAction("TagAlreadyExist");
-        return;
+        setActiveLoading(false)
+        setModalVisible(true)
+        setModalAction("TagAlreadyExist")
+        return
       }
-      let list = [...tags, tagName];
-      list.sort((a, b) => a.localeCompare(b));
+      let list = [...tags, tagName]
+      list.sort((a, b) => a.localeCompare(b))
 
-      const docRef = doc(db, "userData", user.uid);
+      const docRef = doc(db, "userData", user.uid)
       await updateDoc(docRef, {
         tags: list,
       }).catch((error) => {
-        setModalVisible(true);
+        setModalVisible(true)
         getUnknownErrorFirebase(
           "SettingsTags",
           "addTag/updateDoc",
           error.code,
           error.message
-        );
-        setModalAction("UnknownError");
-      });
+        )
+        setModalAction("UnknownError")
+      })
 
-      setTags(list);
-      setTagName("");
-      setActiveLoading(false);
+      setTags(list)
+      setTagName("")
+      setActiveLoading(false)
     }
-  };
+  }
 
   return (
     <>
@@ -94,7 +104,7 @@ const SettingsTags = () => {
               <TouchableOpacity
                 onPress={() => {
                   if (!activeLoading) {
-                    addTag();
+                    addTag()
                   }
                 }}
               >
@@ -137,10 +147,10 @@ const SettingsTags = () => {
         />
       </ScrollView>
     </>
-  );
-};
+  )
+}
 
-export default SettingsTags;
+export default SettingsTags
 
 const styles = StyleSheet.create({
   container: {
@@ -165,4 +175,4 @@ const styles = StyleSheet.create({
     height: 35,
     paddingStart: 5,
   },
-});
+})

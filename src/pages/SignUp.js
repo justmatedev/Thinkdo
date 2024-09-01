@@ -7,122 +7,122 @@ import {
   Image,
   Platform,
   KeyboardAvoidingView,
-} from "react-native";
-import React, { useContext, useState } from "react";
-import { useFocusEffect, useNavigation } from "@react-navigation/native";
-import { auth, db } from "../firebaseConnection";
+} from "react-native"
+import React, { useContext, useState } from "react"
+import { useFocusEffect, useNavigation } from "@react-navigation/native"
+import { auth, db } from "../firebaseConnection"
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   updateProfile,
-} from "firebase/auth";
-import { UserContext } from "../context/userContext";
-import { doc, setDoc } from "firebase/firestore";
-import configureNavigationBar from "../scripts/configureNavigationBar";
-import colors from "../theme/colors";
-import { StatusBar } from "expo-status-bar";
-import Clouds from "../components/Clouds";
-import { iconSize, iconSource } from "../theme/icon";
-import TextInputCustom from "../components/TextInputCustom";
-import ButtonCustom from "../components/ButtonCustom";
-import { fontFamily, fontSize } from "../theme/font";
-import { Ionicons } from "@expo/vector-icons";
-import CustomModal from "../components/CustomModal";
-import getUnknownErrorFirebase from "../scripts/getUnknownErrorFirebase";
+} from "firebase/auth"
+import { UserContext } from "../context/userContext"
+import { doc, setDoc } from "firebase/firestore"
+import configureNavigationBar from "../scripts/configureNavigationBar"
+import colors from "../theme/colors"
+import { StatusBar } from "expo-status-bar"
+import Clouds from "../components/Clouds"
+import { iconSize, iconSource } from "../theme/icon"
+import TextInputCustom from "../components/TextInputCustom"
+import ButtonCustom from "../components/ButtonCustom"
+import { fontFamily, fontSize } from "../theme/font"
+import { Ionicons } from "@expo/vector-icons"
+import CustomModal from "../components/CustomModal"
+import getUnknownErrorFirebase from "../scripts/getUnknownErrorFirebase"
 
 const SignUp = () => {
-  const navigation = useNavigation();
-  const { setModalAction } = useContext(UserContext);
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const { EnterUser } = useContext(UserContext);
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [loadingRegister, setLoadingRegister] = useState(false);
-  const [modalVisible, setModalVisible] = useState(false);
+  const navigation = useNavigation()
+  const { setModalAction } = useContext(UserContext)
+  const [name, setName] = useState("")
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [confirmPassword, setConfirmPassword] = useState("")
+  const { EnterUser } = useContext(UserContext)
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [loadingRegister, setLoadingRegister] = useState(false)
+  const [modalVisible, setModalVisible] = useState(false)
 
   useFocusEffect(
     React.useCallback(() => {
-      configureNavigationBar(colors.primaryPurple);
+      configureNavigationBar(colors.primaryPurple)
 
       const unsubscribe = navigation.addListener("beforeRemove", () => {
-        setModalAction("");
-        return true;
-      });
+        setModalAction("")
+        return true
+      })
 
-      return unsubscribe;
+      return unsubscribe
     }, [])
-  );
+  )
 
   const handleRegister = () => {
     if (name && email && password && confirmPassword) {
-      const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      const checkEmail = re.test(String(email).toLowerCase());
+      const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+      const checkEmail = re.test(String(email).toLowerCase())
       if (checkEmail) {
         if (password.length > 5) {
           if (password === confirmPassword) {
-            setLoadingRegister(true);
+            setLoadingRegister(true)
             createUserWithEmailAndPassword(auth, email, password)
               .then(async (userCredential) => {
                 updateProfile(auth.currentUser, {
                   displayName: name,
-                });
+                })
 
                 await setDoc(doc(db, "userData", userCredential.user.uid), {
                   tags: [],
                   LastTimeSendVerifiedEmail: null,
-                });
+                })
 
                 signInWithEmailAndPassword(auth, email, password)
                   .then((userCredential) => {
-                    EnterUser(userCredential.user);
-                    navigation.navigate("Home");
+                    EnterUser(userCredential.user)
+                    navigation.navigate("Home")
                   })
                   .catch((error) => {
-                    setModalVisible(true);
+                    setModalVisible(true)
                     getUnknownErrorFirebase(
                       "SignUp",
                       "handleRegister/signInWithEmailAndPassword",
                       error.code,
                       error.message
-                    );
-                    setModalAction("UnknownError");
-                  });
+                    )
+                    setModalAction("UnknownError")
+                  })
               })
               .catch((error) => {
-                setModalVisible(true);
+                setModalVisible(true)
                 if (error.code === "auth/email-already-in-use") {
-                  setModalAction("EmailAlreadyInUse");
+                  setModalAction("EmailAlreadyInUse")
                 } else {
                   getUnknownErrorFirebase(
                     "SignUp",
                     "handleRegister/createUserWithEmailAndPassword",
                     error.code,
                     error.message
-                  );
-                  setModalAction("UnknownError");
+                  )
+                  setModalAction("UnknownError")
                 }
-              });
-            setLoadingRegister(false);
+              })
+            setLoadingRegister(false)
           } else {
-            setModalAction("DifferentPassword");
-            setModalVisible(true);
+            setModalAction("DifferentPassword")
+            setModalVisible(true)
           }
         } else {
-          setModalAction("ShortPassword");
-          setModalVisible(true);
+          setModalAction("ShortPassword")
+          setModalVisible(true)
         }
       } else {
-        setModalAction("InvalidEmail");
-        setModalVisible(true);
+        setModalAction("InvalidEmail")
+        setModalVisible(true)
       }
     } else {
-      setModalAction("RequireAllFields");
-      setModalVisible(true);
+      setModalAction("RequireAllFields")
+      setModalVisible(true)
     }
-  };
+  }
 
   return (
     <>
@@ -141,7 +141,7 @@ const SignUp = () => {
             <View style={{ marginBottom: 50 }}>
               <Image
                 style={{ height: 35 * 2.2, width: 64 * 2.2 }}
-                source={iconSource.logoRoxo}
+                source={iconSource.logo}
               />
             </View>
             <View style={styles.form}>
@@ -279,10 +279,10 @@ const SignUp = () => {
         <Clouds bottom />
       </View>
     </>
-  );
-};
+  )
+}
 
-export default SignUp;
+export default SignUp
 
 const styles = StyleSheet.create({
   container: {
@@ -299,4 +299,4 @@ const styles = StyleSheet.create({
     fontSize: fontSize.regular,
     fontFamily: fontFamily.PoppinsRegular400,
   },
-});
+})

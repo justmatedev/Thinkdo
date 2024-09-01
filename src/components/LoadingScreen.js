@@ -1,6 +1,6 @@
-import { ActivityIndicator, View } from "react-native";
-import React from "react";
-import colors from "../theme/colors";
+import { ActivityIndicator, View } from "react-native"
+import React from "react"
+import colors from "../theme/colors"
 
 const LoadingScreen = () => {
   return (
@@ -14,7 +14,7 @@ const LoadingScreen = () => {
     >
       <ActivityIndicator size="large" color={colors.primaryPurple} />
     </View>
-  );
-};
+  )
+}
 
-export default LoadingScreen;
+export default LoadingScreen

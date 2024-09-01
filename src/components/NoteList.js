@@ -4,83 +4,63 @@ import {
   View,
   TouchableOpacity,
   FlatList,
-} from "react-native";
-import React, { useContext, useEffect, useState } from "react";
-import { useNavigation } from "@react-navigation/native";
-import moment from "moment";
+} from "react-native"
+import React, { useContext, useEffect, useState } from "react"
+import { useNavigation } from "@react-navigation/native"
+import moment from "moment"
 import {
   ScaleDecorator,
   ShadowDecorator,
   OpacityDecorator,
-} from "react-native-draggable-flatlist";
-import { UserContext } from "../context/userContext";
-import { Ionicons } from "@expo/vector-icons";
-import Tags from "./Tags";
-import { fontFamily, fontSize } from "../theme/font";
-import { iconSize } from "../theme/icon";
-import colors from "../theme/colors";
+} from "react-native-draggable-flatlist"
+import { UserContext } from "../context/userContext"
+import { Ionicons } from "@expo/vector-icons"
+import Tags from "./Tags"
+import { fontFamily, fontSize } from "../theme/font"
+import { iconSize } from "../theme/icon"
+import colors from "../theme/colors"
 
 const NoteList = ({ data, drag }) => {
-  const navigation = useNavigation();
-  const { selectedNotes, setSelectedNotes } = useContext(UserContext);
-  const [activeSelected, setActiveSelected] = useState(false);
+  const navigation = useNavigation()
+  const { selectedNotes, setSelectedNotes } = useContext(UserContext)
+  const [activeSelected, setActiveSelected] = useState(false)
 
   useEffect(() => {
-    const isActiveSelected = selectedNotes.some((note) => note.id === data.id);
-    setActiveSelected(isActiveSelected);
-  }, [selectedNotes]);
+    const isActiveSelected = selectedNotes.some((note) => note.id === data.id)
+    setActiveSelected(isActiveSelected)
+  }, [selectedNotes])
 
   const formatDateTime = (time) => {
-    const receivedTime = moment(time, "YYYY-MM-DD HH:mm:ss");
-    const monthName = receivedTime.format("MMM");
+    const receivedTime = moment(time, "YYYY-MM-DD HH:mm:ss")
+    const monthName = receivedTime.format("MMM")
 
-    const now = moment();
+    const now = moment()
     if (receivedTime.year() === now.year()) {
       if (receivedTime.day() === now.day()) {
-        return receivedTime.format("HH:mm");
+        return receivedTime.format("HH:mm")
       } else {
-        return `${receivedTime.date()} ${monthName}`;
+        return `${receivedTime.date()} ${monthName}`
       }
     } else {
-      return `${receivedTime.day()} ${monthName}, ${receivedTime.year()}`;
+      return `${receivedTime.day()} ${monthName}, ${receivedTime.year()}`
     }
-  };
+  }
 
   const controlSelectecNotes = () => {
-    let hasItem = false;
+    let hasItem = false
     for (let i = 0; i < selectedNotes.length; i++) {
       if (selectedNotes[i].id === data.id) {
-        hasItem = true;
-        break;
+        hasItem = true
+        break
       }
     }
     if (hasItem) {
-      const updatedNotes = selectedNotes.filter((note) => note.id !== data.id);
-      setSelectedNotes(updatedNotes);
+      const updatedNotes = selectedNotes.filter((note) => note.id !== data.id)
+      setSelectedNotes(updatedNotes)
     } else {
-      setSelectedNotes([...selectedNotes, data]);
+      setSelectedNotes([...selectedNotes, data])
     }
-  };
-
-  const returnHexColor = (color) => {
-    if (color === "red") {
-      return colors.customBackgroundNoteRed;
-    } else if (color === "orange") {
-      return colors.customBackgroundNoteOrange;
-    } else if (color === "yellow") {
-      return colors.customBackgroundNoteYellow;
-    } else if (color === "green") {
-      return colors.customBackgroundNoteGreen;
-    } else if (color === "blue") {
-      return colors.customBackgroundNoteBlue;
-    } else if (color === "indigo") {
-      return colors.customBackgroundNoteIndigo;
-    } else if (color === "violet") {
-      return colors.customBackgroundNoteViolet;
-    } else if (color === "default") {
-      return colors.backgroundLight;
-    }
-  };
+  }
 
   return (
     <ScaleDecorator activeScale={0.95}>
@@ -88,12 +68,12 @@ const NoteList = ({ data, drag }) => {
         <ShadowDecorator>
           <TouchableOpacity
             onLongPress={() => {
-              drag();
+              drag()
             }}
             style={[
               styles.container,
               {
-                backgroundColor: returnHexColor(data.backgroundColor),
+                backgroundColor: data.backgroundColor,
                 borderColor: activeSelected
                   ? colors.primaryPurple
                   : colors.borderColorLight,
@@ -141,7 +121,7 @@ const NoteList = ({ data, drag }) => {
               <FlatList
                 data={data.tags}
                 renderItem={({ item }) => {
-                  return <Tags item={item} />;
+                  return <Tags item={item} />
                 }}
                 horizontal
                 showsHorizontalScrollIndicator={false}
@@ -177,10 +157,10 @@ const NoteList = ({ data, drag }) => {
         </ShadowDecorator>
       </OpacityDecorator>
     </ScaleDecorator>
-  );
-};
+  )
+}
 
-export default NoteList;
+export default NoteList
 
 const styles = StyleSheet.create({
   container: {
@@ -189,4 +169,4 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     padding: 10,
   },
-});
+})

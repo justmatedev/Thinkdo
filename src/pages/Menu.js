@@ -6,39 +6,39 @@ import {
   View,
   Image,
   Linking,
-} from "react-native";
-import Header from "../components/Header";
-import { auth } from "../firebaseConnection";
-import { signOut } from "firebase/auth";
-import { useNavigation } from "@react-navigation/native";
-import colors from "../theme/colors";
-import { Ionicons } from "@expo/vector-icons";
-import { iconSize, iconSource } from "../theme/icon";
-import { fontFamily, fontSize } from "../theme/font";
-import CustomModal from "../components/CustomModal";
-import { useState } from "react";
-import getUnknownErrorFirebase from "../scripts/getUnknownErrorFirebase";
+} from "react-native"
+import Header from "../components/Header"
+import { auth } from "../firebaseConnection"
+import { signOut } from "firebase/auth"
+import { useNavigation } from "@react-navigation/native"
+import colors from "../theme/colors"
+import { Ionicons } from "@expo/vector-icons"
+import { iconSize, iconSource } from "../theme/icon"
+import { fontFamily, fontSize } from "../theme/font"
+import CustomModal from "../components/CustomModal"
+import { useState } from "react"
+import getUnknownErrorFirebase from "../scripts/getUnknownErrorFirebase"
 
-const Settings = () => {
-  const navigation = useNavigation();
-  const [modalVisible, setModalVisible] = useState(false);
+const Menu = () => {
+  const navigation = useNavigation()
+  const [modalVisible, setModalVisible] = useState(false)
 
   const handleLogOut = () => {
     signOut(auth)
       .then(() => {
-        navigation.navigate("SignIn");
+        navigation.navigate("SignIn")
       })
       .catch((error) => {
-        setModalVisible(true);
+        setModalVisible(true)
         getUnknownErrorFirebase(
-          "Settings",
+          "Menu",
           "handleLogOut/signOut",
           error.code,
           error.message
-        );
-        setModalAction("UnknownError");
-      });
-  };
+        )
+        setModalAction("UnknownError")
+      })
+  }
 
   const OptionSetting = ({ title, icon, navigate }) => {
     return (
@@ -79,22 +79,22 @@ const Settings = () => {
           </View>
         </TouchableOpacity>
       </View>
-    );
-  };
+    )
+  }
 
   const openGithub = () => {
-    const url = "https://github.com/justmatedev/Thinkdo";
-    Linking.openURL(url);
-  };
+    const url = "https://github.com/justmatedev/Thinkdo"
+    Linking.openURL(url)
+  }
 
   const openEmail = () => {
-    const url = "mailto:justmatedev@gmail.com";
-    Linking.openURL(url);
-  };
+    const url = "mailto:justmatedev@gmail.com"
+    Linking.openURL(url)
+  }
 
   return (
     <>
-      <Header fromSettings settingsTitle="Settings" />
+      <Header fromSettings settingsTitle="Menu" />
       <ScrollView
         style={styles.container}
         contentContainerStyle={{
@@ -111,7 +111,7 @@ const Settings = () => {
           <View style={{ alignItems: "center", marginVertical: 40 }}>
             <Image
               style={{ height: 35 * 2.2, width: 64 * 2.2 }}
-              source={iconSource.logoRoxo}
+              source={iconSource.logo}
             />
           </View>
 
@@ -148,25 +148,35 @@ const Settings = () => {
             }
             navigate="logout"
           />
-          <View style={{ alignItems: "center", marginTop: 20 }}>
-            <View
+
+          <View style={{ alignItems: "center", marginTop: 20, gap: 5 }}>
+            <Text style={[styles.text]}>App Version: 1.0.1</Text>
+            <TouchableOpacity
+              onPress={openGithub}
               style={{
                 flexDirection: "row",
                 alignItems: "center",
-                marginVertical: 10,
-                gap: 5,
+                padding: 5,
               }}
             >
-              <Text style={[styles.text, { paddingTop: 4 }]}>Source Code:</Text>
-              <TouchableOpacity onPress={openGithub}>
-                <Ionicons
-                  name="logo-github"
-                  size={iconSize.regular}
-                  color={colors.primaryPurple}
-                  style={{ padding: 5 }}
-                />
-              </TouchableOpacity>
-            </View>
+              <Text
+                style={[
+                  styles.text,
+                  {
+                    marginEnd: 5,
+                    textDecorationLine: "underline",
+                    color: colors.primaryPurple,
+                  },
+                ]}
+              >
+                Source Code:
+              </Text>
+              <Ionicons
+                name="logo-github"
+                size={iconSize.small}
+                color={colors.primaryPurple}
+              />
+            </TouchableOpacity>
 
             <Text style={[styles.text, { textAlign: "center" }]}>
               For any questions, errors, or suggestions, please email us at:
@@ -192,10 +202,10 @@ const Settings = () => {
         />
       </ScrollView>
     </>
-  );
-};
+  )
+}
 
-export default Settings;
+export default Menu
 
 const styles = StyleSheet.create({
   container: {
@@ -215,4 +225,4 @@ const styles = StyleSheet.create({
     fontFamily: fontFamily.PoppinsRegular400,
     fontSize: fontSize.regular,
   },
-});
+})

@@ -1,7 +1,7 @@
-import { Text, View } from "react-native";
-import React from "react";
-import colors from "../theme/colors";
-import { fontFamily, fontSize } from "../theme/font";
+import { Text, View } from "react-native"
+import React from "react"
+import colors from "../theme/colors"
+import { fontFamily, fontSize } from "../theme/font"
 
 const NoNotes = () => {
   return (
@@ -39,7 +39,7 @@ const NoNotes = () => {
         }}
       />
     </View>
-  );
-};
+  )
+}
 
-export default NoNotes;
+export default NoNotes
