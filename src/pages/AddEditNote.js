@@ -65,6 +65,11 @@ export default function AddEditNote() {
   const [lastEditTime, setLastEditTime] = useState(
     data ? data.lastEditTime : null
   )
+  const [undoStack, setUndoStack] = useState([])
+  const [redoStack, setRedoStack] = useState([])
+
+  const [undoMade, setUndoMade] = useState(false)
+  const [redoMade, setRedoMade] = useState(false)
 
   useFocusEffect(
     React.useCallback(() => {
@@ -97,7 +102,7 @@ export default function AddEditNote() {
         }
       }
 
-      const timeoutId = setTimeout(saveNote, 2000)
+      const timeoutId = setTimeout(saveNote, 1500)
 
       return () => clearTimeout(timeoutId)
     } else {
@@ -231,6 +236,9 @@ export default function AddEditNote() {
         title: title,
       })
         .then(async () => {
+          if (!undoMade) {
+            setUndoStack((prevData) => [...prevData, dataMain.content])
+          }
           setDataMain((prevData) => ({
             ...prevData,
             title: title,
@@ -336,6 +344,26 @@ export default function AddEditNote() {
     }
   }
 
+  const undoStackFunc = () => {
+    setUndoMade(true)
+
+    let undoList = undoStack
+    setContent(undoList[undoList.length - 1])
+    undoList.pop()
+    setUndoStack(undoList)
+    setRedoStack((prevData) => [...prevData, content])
+  }
+
+  const redoStackFunc = () => {
+    setRedoMade(true)
+
+    let redoList = redoStack
+    setContent(redoList[redoList.length - 1])
+    redoList.pop()
+    setRedoStack(redoList)
+    setUndoStack((prevData) => [...prevData, content])
+  }
+
   return (
     <>
       <Header
@@ -383,6 +411,9 @@ export default function AddEditNote() {
           value={content}
           onChangeText={(text) => {
             showOptions && setShowOptions(false)
+            setRedoStack([])
+            setRedoMade(false)
+            setUndoMade(false)
             setContent(text)
           }}
           textAlignVertical="top"
@@ -452,23 +483,75 @@ export default function AddEditNote() {
               setShowOptions(!showOptions)
             }, 100)
           }}
-          style={[styles.options, { borderWidth: 0 }]}
+          style={styles.options}
           activeOpacity={1}
         >
-          <TouchableOpacity
-            onPress={() => {
-              Keyboard.dismiss()
-              setTimeout(() => {
-                setShowOptions(!showOptions)
-              }, 100)
+          <View
+            style={{
+              flexDirection: "row",
+              height: "100%",
+              alignItems: "center",
             }}
           >
-            <Ionicons
-              name={showOptions ? "chevron-down-outline" : "chevron-up-outline"}
-              size={iconSize.regular}
-              color={colors.primaryPurple}
-            />
-          </TouchableOpacity>
+            <View
+              style={{
+                flexDirection: "row",
+                marginRight: 20,
+                gap: 10,
+              }}
+            >
+              <TouchableOpacity
+                style={styles.undoRedo}
+                onPress={() => {
+                  undoStack.length !== 0 ? undoStackFunc() : {}
+                }}
+                activeOpacity={undoStack.length !== 0 ? 0.2 : 1}
+              >
+                <Ionicons
+                  name="arrow-undo-outline"
+                  size={iconSize.regular}
+                  color={
+                    undoStack.length !== 0
+                      ? colors.primaryPurple
+                      : colors.primaryPurpleAlfa
+                  }
+                />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.undoRedo}
+                onPress={() => {
+                  redoStack.length !== 0 ? redoStackFunc() : {}
+                }}
+                activeOpacity={redoStack.length !== 0 ? 0.2 : 1}
+              >
+                <Ionicons
+                  name="arrow-redo-outline"
+                  size={iconSize.regular}
+                  color={
+                    redoStack.length !== 0
+                      ? colors.primaryPurple
+                      : colors.primaryPurpleAlfa
+                  }
+                />
+              </TouchableOpacity>
+            </View>
+            <TouchableOpacity
+              onPress={() => {
+                Keyboard.dismiss()
+                setTimeout(() => {
+                  setShowOptions(!showOptions)
+                }, 100)
+              }}
+            >
+              <Ionicons
+                name={
+                  showOptions ? "chevron-down-outline" : "chevron-up-outline"
+                }
+                size={iconSize.regular}
+                color={colors.primaryPurple}
+              />
+            </TouchableOpacity>
+          </View>
           {lastEditTime && (
             <View
               style={{
@@ -549,5 +632,9 @@ const styles = StyleSheet.create({
   text: {
     fontFamily: fontFamily.PoppinsRegular400,
     fontSize: fontSize.regular,
+  },
+  undoRedo: {
+    paddingHorizontal: 5,
+    justifyContent: "center",
   },
 })
