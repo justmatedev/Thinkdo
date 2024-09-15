@@ -71,7 +71,7 @@ export default function AddEditNote() {
 
   const [undoMade, setUndoMade] = useState(false)
 
-  // const [isEditing, setIsEditing] = useState(false)
+  const [isEditing, setIsEditing] = useState(false)
 
   useFocusEffect(
     React.useCallback(() => {
@@ -100,9 +100,11 @@ export default function AddEditNote() {
 
   useEffect(() => {
     if (hasLoaded) {
+      setIsEditing(true)
       const saveNote = async () => {
         if (dataMain.id) {
           await handleUpdate()
+          setIsEditing(false)
         } else {
           await handleAdd()
         }
@@ -559,7 +561,7 @@ export default function AddEditNote() {
                     paddingTop: 3,
                   }}
                 >
-                  {formatDateTime(lastEditTime)}
+                  {!isEditing && formatDateTime(lastEditTime)}
                 </Text>
               )}
             </View>

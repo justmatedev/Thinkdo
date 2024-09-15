@@ -150,7 +150,7 @@ const Menu = () => {
           />
 
           <View style={{ alignItems: "center", marginTop: 20, gap: 5 }}>
-            <Text style={[styles.text]}>App Version: 1.0.1</Text>
+            <Text style={[styles.text]}>App Version: 1.0.2</Text>
             <TouchableOpacity
               onPress={openGithub}
               style={{
