@@ -24,7 +24,7 @@ export default function Header({
   settingsTitle,
 }) {
   const navigation = useNavigation()
-  const { user, statusBarColor, setModalAction } = useContext(UserContext)
+  const { user, statusBarColor } = useContext(UserContext)
 
   useEffect(() => {
     colorBackground()
@@ -49,7 +49,9 @@ export default function Header({
     [colors.backgroundLight]: colors.backgroundLight,
   }
 
-  const colorBackground = () => colorMapping[statusBarColor] || null
+  const colorBackground = () => {
+    return colorMapping[statusBarColor] || null
+  }
 
   return (
     <SafeAreaView

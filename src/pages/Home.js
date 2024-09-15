@@ -32,6 +32,7 @@ import CloudButton from "../components/CloudButton"
 import ListTags from "../components/ListTags"
 import NoNotes from "../components/NoNotes"
 import getUnknownErrorFirebase from "../scripts/getUnknownErrorFirebase"
+import { returnHexColor } from "../scripts/returnColor"
 
 const Home = () => {
   const navigation = useNavigation()
@@ -102,26 +103,6 @@ const Home = () => {
       })
     })
     setNotes(list)
-  }
-
-  const returnHexColor = (color) => {
-    if (color === "red") {
-      return colors.customBackgroundNoteRed
-    } else if (color === "orange") {
-      return colors.customBackgroundNoteOrange
-    } else if (color === "yellow") {
-      return colors.customBackgroundNoteYellow
-    } else if (color === "green") {
-      return colors.customBackgroundNoteGreen
-    } else if (color === "blue") {
-      return colors.customBackgroundNoteBlue
-    } else if (color === "indigo") {
-      return colors.customBackgroundNoteIndigo
-    } else if (color === "violet") {
-      return colors.customBackgroundNoteViolet
-    } else if (color === "default") {
-      return colors.backgroundLight
-    }
   }
 
   const updateDocsFiltered = async () => {

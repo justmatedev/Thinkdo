@@ -37,6 +37,7 @@ import ButtonCustom from "../components/ButtonCustom"
 import ListTags from "../components/ListTags"
 import getUnknownErrorFirebase from "../scripts/getUnknownErrorFirebase"
 import Loading from "../components/Loading"
+import { returnNameColor } from "../scripts/returnColor"
 
 export default function AddEditNote() {
   const navigation = useNavigation()
@@ -69,17 +70,22 @@ export default function AddEditNote() {
   const [redoStack, setRedoStack] = useState([])
 
   const [undoMade, setUndoMade] = useState(false)
-  const [redoMade, setRedoMade] = useState(false)
+
+  // const [isEditing, setIsEditing] = useState(false)
 
   useFocusEffect(
     React.useCallback(() => {
-      configureNavigationBar(dataMain.backgroundColorNote)
-      setStatusBarColor(dataMain.backgroundColorNote)
+      const color = backgroundColorNote
+      if (color) {
+        setStatusBarColor(color)
+        configureNavigationBar(color)
+      }
+
       const unsubscribe = navigation.addListener("beforeRemove", () => {
         return true
       })
       return unsubscribe
-    }, [navigation])
+    }, [dataMain])
   )
 
   useEffect(() => {
@@ -102,9 +108,9 @@ export default function AddEditNote() {
         }
       }
 
-      const timeoutId = setTimeout(saveNote, 1500)
+      const timeoutSaveNote = setTimeout(saveNote, 1000)
 
-      return () => clearTimeout(timeoutId)
+      return () => clearTimeout(timeoutSaveNote)
     } else {
       setHasLoaded(true)
     }
@@ -121,26 +127,6 @@ export default function AddEditNote() {
       keyboardDidShowListener.remove()
     }
   }, [showOptions])
-
-  const returnNameColor = (color) => {
-    if (color === colors.customBackgroundNoteRed) {
-      return "red"
-    } else if (color === colors.customBackgroundNoteOrange) {
-      return "orange"
-    } else if (color === colors.customBackgroundNoteYellow) {
-      return "yellow"
-    } else if (color === colors.customBackgroundNoteGreen) {
-      return "green"
-    } else if (color === colors.customBackgroundNoteBlue) {
-      return "blue"
-    } else if (color === colors.customBackgroundNoteIndigo) {
-      return "indigo"
-    } else if (color === colors.customBackgroundNoteViolet) {
-      return "violet"
-    } else if (color === colors.backgroundLight) {
-      return "default"
-    }
-  }
 
   const handleAdd = async () => {
     if (
@@ -355,8 +341,6 @@ export default function AddEditNote() {
   }
 
   const redoStackFunc = () => {
-    setRedoMade(true)
-
     let redoList = redoStack
     setContent(redoList[redoList.length - 1])
     redoList.pop()
@@ -412,7 +396,6 @@ export default function AddEditNote() {
           onChangeText={(text) => {
             showOptions && setShowOptions(false)
             setRedoStack([])
-            setRedoMade(false)
             setUndoMade(false)
             setContent(text)
           }}
