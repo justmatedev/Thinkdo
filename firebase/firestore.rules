@@ -1,0 +1,54 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{userId}/items/{itemId} {
+      function isOwner() {
+        return request.auth != null && request.auth.uid == userId;
+      }
+      function validColor(d) {
+        return !('color' in d)
+          || d.color == null
+          || d.color in ['yellow', 'orange', 'red', 'pink', 'purple', 'blue', 'green', 'gray'];
+      }
+      function validHourMinute(d) {
+        return d.hour is int && d.hour >= 0 && d.hour <= 23
+          && d.minute is int && d.minute >= 0 && d.minute <= 59;
+      }
+      function validReminder(d) {
+        return !('reminder' in d)
+          || d.reminder == null
+          || (
+            d.reminder.keys().hasOnly(['kind', 'at'])
+            && d.reminder.kind == 'once'
+            && d.reminder.at is timestamp
+          )
+          || (
+            d.reminder.keys().hasOnly(['kind', 'hour', 'minute'])
+            && d.reminder.kind == 'daily'
+            && validHourMinute(d.reminder)
+          )
+          || (
+            d.reminder.keys().hasOnly(['kind', 'weekday', 'hour', 'minute'])
+            && d.reminder.kind == 'weekly'
+            && d.reminder.weekday is int
+            && d.reminder.weekday >= 1 && d.reminder.weekday <= 7
+            && validHourMinute(d.reminder)
+          );
+      }
+      function validItem(d) {
+        return d.type in ['note', 'task']
+          && d.title is string && d.title.size() > 0
+          && d.body is string
+          && d.done is bool
+          && d.sortOrder is number
+          && d.createdAt is timestamp
+          && d.updatedAt is timestamp
+          && validColor(d)
+          && validReminder(d);
+      }
+      allow read, delete: if isOwner();
+      allow create: if isOwner() && validItem(request.resource.data);
+      allow update: if isOwner() && validItem(request.resource.data);
+    }
+  }
+}

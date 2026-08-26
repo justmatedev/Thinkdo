@@ -1,0 +1,24 @@
+export type AuthUiPalette = {
+  heroBackground: string;
+  logo: string;
+  tagline: string;
+  taglineOpacity: number;
+  dockBackground: string;
+  googleBackground: string;
+  googlePressed: string;
+  googleText: string;
+  googleBorder: string;
+  inputBackground: string;
+  inputBorder: string;
+  inputFocusBorder: string;
+  inputText: string;
+  placeholder: string;
+  label: string;
+  fieldError: string;
+  primaryBackground: string;
+  primaryPressed: string;
+  primaryText: string;
+  link: string;
+  divider: string;
+  dividerText: string;
+};
