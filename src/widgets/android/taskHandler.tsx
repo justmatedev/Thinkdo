@@ -18,10 +18,8 @@ export async function widgetTaskHandler(
   const name = props.widgetInfo.widgetName;
 
   if (name === WIDGET_NATIVE_NAMES.inbox) {
-    switch (props.widgetAction) {
-      case "WIDGET_ADDED":
-      case "WIDGET_UPDATE":
-      case "WIDGET_RESIZED":
+    const renderInbox = async () => {
+      try {
         props.renderWidget(
           await resolveInboxWidgetRepresentation(
             props.widgetInfo.widgetId,
@@ -29,6 +27,16 @@ export async function widgetTaskHandler(
             props.widgetInfo.height
           )
         );
+      } catch {
+        // Keep the widget alive even if snapshot/render fails.
+      }
+    };
+
+    switch (props.widgetAction) {
+      case "WIDGET_ADDED":
+      case "WIDGET_UPDATE":
+      case "WIDGET_RESIZED":
+        await renderInbox();
         break;
       case "WIDGET_DELETED":
         await clearInboxWidgetInstancePrefs(props.widgetInfo.widgetId);
@@ -46,13 +54,7 @@ export async function widgetTaskHandler(
               // Leave the snapshot unchanged when persistence fails.
             }
           }
-          props.renderWidget(
-            await resolveInboxWidgetRepresentation(
-              props.widgetInfo.widgetId,
-              props.widgetInfo.width,
-              props.widgetInfo.height
-            )
-          );
+          await renderInbox();
         }
         break;
       default:

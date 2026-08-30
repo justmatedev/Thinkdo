@@ -84,6 +84,16 @@ describe("widgetTaskHandler Inbox", () => {
     expect(props.renderWidget).toHaveBeenCalledWith({ kind: "inbox" });
   });
 
+  it("keeps the widget when inbox render resolution fails", async () => {
+    mockResolveInboxWidgetRepresentation.mockRejectedValue(
+      new Error("snapshot failed")
+    );
+    const props = inboxProps();
+
+    await expect(widgetTaskHandler(props)).resolves.toBeUndefined();
+    expect(props.renderWidget).not.toHaveBeenCalled();
+  });
+
   it("clears instance preferences when Inbox is deleted", async () => {
     await widgetTaskHandler(inboxProps({ widgetAction: "WIDGET_DELETED" }));
 

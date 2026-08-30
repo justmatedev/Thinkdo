@@ -16,6 +16,10 @@ export function widgetDeepLink(id: WidgetId): string {
   return Linking.createURL(widgetRoutePath(id));
 }
 
+export function isWidgetCaptureLink(url: string): boolean {
+  return parseWidgetDeepLinkPath(url) === "capture";
+}
+
 export function parseWidgetDeepLinkPath(path: string): WidgetId | null {
   if (path.includes("focus=capture")) return "capture";
 

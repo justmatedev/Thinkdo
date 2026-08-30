@@ -6,12 +6,14 @@ import {
 } from "@expo-google-fonts/poppins";
 import { useCallback, useEffect, useState } from "react";
 import {
+  ActivityIndicator,
   StyleSheet,
   Text,
   useColorScheme,
   View,
   type LayoutChangeEvent,
 } from "react-native";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import {
   WidgetPreview,
   type WidgetConfigurationScreenProps,
@@ -96,6 +98,8 @@ function CaptureThemeConfigBody({
           previewArea.height / tileHeight
         )
       : 1;
+  const previewWidth = Math.max(1, Math.round(tileWidth * scale));
+  const previewHeight = Math.max(1, Math.round(tileHeight * scale));
 
   const onConfirm = async () => {
     if (busy) return;
@@ -137,26 +141,17 @@ function CaptureThemeConfigBody({
           style={[
             styles.previewFrame,
             {
-              width: tileWidth * scale,
-              height: tileHeight * scale,
+              width: previewWidth,
+              height: previewHeight,
               borderColor: colors.border,
             },
           ]}
         >
-          <View
-            style={{
-              width: tileWidth,
-              height: tileHeight,
-              transform: [{ scale }],
-              transformOrigin: "top left",
-            }}
-          >
-            <WidgetPreview
-              width={tileWidth}
-              height={tileHeight}
-              renderWidget={renderPreviewWidget}
-            />
-          </View>
+          <WidgetPreview
+            width={previewWidth}
+            height={previewHeight}
+            renderWidget={renderPreviewWidget}
+          />
         </View>
       </View>
 
@@ -243,6 +238,8 @@ function InboxWidgetConfigBody({
           previewArea.height / tileHeight
         )
       : 1;
+  const previewWidth = Math.max(1, Math.round(tileWidth * scale));
+  const previewHeight = Math.max(1, Math.round(tileHeight * scale));
 
   const onConfirm = async () => {
     if (busy) return;
@@ -252,12 +249,16 @@ function InboxWidgetConfigBody({
         saveWidgetThemePreference(widgetInfo.widgetId, pref),
         saveInboxWidgetFilter(widgetInfo.widgetId, filter),
       ]);
+      // Prefer in-memory prefs so confirm does not depend on a second storage round-trip.
       const representation = await resolveInboxWidgetRepresentation(
         widgetInfo.widgetId,
-        widgetInfo.width,
-        widgetInfo.height
+        tileWidth > 0 ? tileWidth : widgetInfo.width,
+        tileHeight > 0 ? tileHeight : widgetInfo.height
       );
       renderWidget(representation);
+      setResult("ok");
+    } catch {
+      // Still accept the widget with the last successful render / defaults.
       setResult("ok");
     } finally {
       setBusy(false);
@@ -305,26 +306,17 @@ function InboxWidgetConfigBody({
           style={[
             styles.previewFrame,
             {
-              width: tileWidth * scale,
-              height: tileHeight * scale,
+              width: previewWidth,
+              height: previewHeight,
               borderColor: colors.border,
             },
           ]}
         >
-          <View
-            style={{
-              width: tileWidth,
-              height: tileHeight,
-              transform: [{ scale }],
-              transformOrigin: "top left",
-            }}
-          >
-            <WidgetPreview
-              width={tileWidth}
-              height={tileHeight}
-              renderWidget={renderPreviewWidget}
-            />
-          </View>
+          <WidgetPreview
+            width={previewWidth}
+            height={previewHeight}
+            renderWidget={renderPreviewWidget}
+          />
         </View>
       </View>
 
@@ -356,18 +348,32 @@ export function WidgetConfigScreen(props: WidgetConfigurationScreenProps) {
     Poppins_600SemiBold,
   });
 
-  if (!fontsLoaded) return null;
-
   return (
-    <SafeAreaProvider>
-      <ThemeProvider>
-        <WidgetConfigBody {...props} />
-      </ThemeProvider>
-    </SafeAreaProvider>
+    <GestureHandlerRootView style={styles.shell}>
+      <SafeAreaProvider>
+        <ThemeProvider>
+          {!fontsLoaded ? (
+            <View style={styles.loading}>
+              <ActivityIndicator size="large" />
+            </View>
+          ) : (
+            <WidgetConfigBody {...props} />
+          )}
+        </ThemeProvider>
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
   );
 }
 
 const styles = StyleSheet.create({
+  shell: {
+    flex: 1,
+  },
+  loading: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+  },
   root: {
     flex: 1,
     paddingHorizontal: spacing.lg,

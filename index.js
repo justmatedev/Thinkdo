@@ -1,6 +1,6 @@
-import "expo-router/entry";
 import { Platform } from "react-native";
 
+// Register widget handlers before expo-router boots (import is hoisted; require is not).
 if (Platform.OS === "android") {
   const {
     registerWidgetTaskHandler,
@@ -13,3 +13,5 @@ if (Platform.OS === "android") {
   registerWidgetTaskHandler(widgetTaskHandler);
   registerWidgetConfigurationScreen(WidgetConfigScreen);
 }
+
+require("expo-router/entry");

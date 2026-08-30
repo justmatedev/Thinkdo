@@ -19,7 +19,10 @@ const THEME_LABELS: Record<ThemePreference, string> = {
 export function resolveWidgetConfigKind(
   widgetName: string
 ): WidgetConfigKind {
-  return widgetName === WIDGET_NATIVE_NAMES.inbox ? "inbox" : "capture";
+  const normalized = widgetName.trim().toLowerCase();
+  return normalized === WIDGET_NATIVE_NAMES.inbox.toLowerCase()
+    ? "inbox"
+    : "capture";
 }
 
 export function widgetConfigSummary(

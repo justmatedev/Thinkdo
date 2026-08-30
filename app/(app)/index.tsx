@@ -30,6 +30,7 @@ import { getAvatarPresentation } from "../../src/features/auth/avatarPresentatio
 import { useInboxSelection } from "../../src/hooks/useInboxSelection";
 import { useItems } from "../../src/hooks/useItems";
 import { useOnline } from "../../src/hooks/useOnline";
+import { useWidgetCaptureFocus } from "../../src/hooks/useWidgetCaptureFocus";
 import { itemMatchesQuery } from "../../src/lib/inboxSearch";
 import {
   deleteConfirmTitle,
@@ -107,6 +108,18 @@ export default function InboxScreen() {
   const [searchMode, setSearchMode] = useState(false);
   const [query, setQuery] = useState("");
   const scrollableRef = useAnimatedRef<Animated.ScrollView>();
+
+  const onWidgetCaptureOpen = useCallback(() => {
+    setFromWidget(true);
+    setSearchMode(false);
+    setQuery("");
+  }, []);
+
+  const { focusEpoch, autoFocus: captureAutoFocus } = useWidgetCaptureFocus({
+    entry,
+    loading,
+    onWidgetCaptureOpen,
+  });
 
   if (entry.fromWidget !== prevFromWidgetParam) {
     setPrevFromWidgetParam(entry.fromWidget);
@@ -440,7 +453,8 @@ export default function InboxScreen() {
           <CaptureBar
             onSubmit={handleCapture}
             disabled={!online || selectionMode}
-            autoFocus={Boolean(entry.focusCapture && !loading)}
+            autoFocus={captureAutoFocus}
+            focusEpoch={focusEpoch}
           />
         )}
 

@@ -11,6 +11,11 @@ describe("resolveWidgetConfigKind", () => {
   it("keeps the Capture form for the Capture native widget", () => {
     expect(resolveWidgetConfigKind("Capture")).toBe("capture");
   });
+
+  it("matches Inbox regardless of casing", () => {
+    expect(resolveWidgetConfigKind("inbox")).toBe("inbox");
+    expect(resolveWidgetConfigKind("INBOX")).toBe("inbox");
+  });
 });
 
 describe("widgetConfigSummary", () => {

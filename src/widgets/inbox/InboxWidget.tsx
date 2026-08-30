@@ -2,7 +2,6 @@
 
 import {
   FlexWidget,
-  ListWidget,
   TextWidget,
 } from "react-native-android-widget";
 import type { ThemeName } from "../../lib/theme";
@@ -22,6 +21,7 @@ import { inboxFilterLabel } from "./inboxWidgetFilter";
 /** Matches inbox ItemRow lead column so note/task titles share one vertical edge. */
 const LEAD_SLOT = 36;
 const CHECK_SIZE = 22;
+const ROW_HEIGHT = 44;
 
 type Props = {
   width: number;
@@ -31,6 +31,10 @@ type Props = {
   snapshot: InboxSnapshot;
 };
 
+/**
+ * Prefer static FlexWidget rows over ListWidget.
+ * ListWidget (AdapterView) has crashed WidgetPreview / config activities in release builds.
+ */
 export function InboxWidget({
   width,
   height,
@@ -42,7 +46,9 @@ export function InboxWidget({
   const palette = captureWidgetPalette(themeName);
   const rows = filterInboxSnapshotRows(snapshot.items, filter);
   const sidePadding = width < 220 ? 10 : 14;
-  const listHeight = Math.max(80, height - 16);
+  const listHeight = Math.max(ROW_HEIGHT, height - 16);
+  const maxRows = Math.max(1, Math.floor(listHeight / ROW_HEIGHT));
+  const visible = rows.slice(0, maxRows);
 
   return (
     <FlexWidget
@@ -56,13 +62,12 @@ export function InboxWidget({
         borderRadius: 20,
         borderWidth: 1,
         flexDirection: "column",
-        overflow: "hidden",
         paddingHorizontal: sidePadding,
         paddingVertical: 6,
       }}
       accessibilityLabel={`Thinkdo · ${inboxFilterLabel(filter)}`}
     >
-      {rows.length === 0 ? (
+      {visible.length === 0 ? (
         <FlexWidget
           clickAction="OPEN_URI"
           clickActionData={{ uri: inboxHomeDeepLink() }}
@@ -84,22 +89,23 @@ export function InboxWidget({
           />
         </FlexWidget>
       ) : (
-        <ListWidget
+        <FlexWidget
           style={{
             width: "match_parent",
             height: listHeight,
+            flexDirection: "column",
           }}
         >
-          {rows.map((row) => (
+          {visible.map((row, index) => (
             <FlexWidget
               key={row.id}
               style={{
                 width: "match_parent",
-                height: 44,
+                height: ROW_HEIGHT,
                 flexDirection: "row",
                 alignItems: "center",
                 borderTopColor: palette.border,
-                borderTopWidth: row === rows[0] ? 0 : 1,
+                borderTopWidth: index === 0 ? 0 : 1,
               }}
             >
               {row.type === "task" ? (
@@ -108,7 +114,7 @@ export function InboxWidget({
                   clickActionData={{ itemId: row.id, done: !row.done }}
                   style={{
                     width: LEAD_SLOT,
-                    height: 44,
+                    height: ROW_HEIGHT,
                     alignItems: "center",
                     justifyContent: "center",
                   }}
@@ -125,7 +131,6 @@ export function InboxWidget({
                       borderRadius: 6,
                       borderWidth: 2,
                       borderColor: palette.accent,
-                      // RemoteViews often paints "transparent" as white — match tile surface.
                       backgroundColor: row.done
                         ? palette.accent
                         : palette.background,
@@ -149,7 +154,7 @@ export function InboxWidget({
                 <FlexWidget
                   style={{
                     width: LEAD_SLOT,
-                    height: 44,
+                    height: ROW_HEIGHT,
                   }}
                 />
               )}
@@ -157,7 +162,7 @@ export function InboxWidget({
                 clickAction="OPEN_URI"
                 clickActionData={{ uri: inboxItemDeepLink(row.id) }}
                 style={{
-                  height: 44,
+                  height: ROW_HEIGHT,
                   flex: 1,
                   justifyContent: "center",
                   paddingRight: 6,
@@ -177,7 +182,7 @@ export function InboxWidget({
               </FlexWidget>
             </FlexWidget>
           ))}
-        </ListWidget>
+        </FlexWidget>
       )}
     </FlexWidget>
   );

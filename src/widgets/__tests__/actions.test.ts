@@ -1,4 +1,5 @@
 import {
+  isWidgetCaptureLink,
   parseWidgetDeepLinkPath,
   widgetRoutePath,
 } from "../actions";
@@ -11,6 +12,16 @@ describe("widgetRoutePath", () => {
 
   it("uses the widget route for inbox", () => {
     expect(widgetRoutePath("inbox")).toBe("/widget/inbox");
+  });
+});
+
+describe("isWidgetCaptureLink", () => {
+  it("detects capture widget URLs", () => {
+    expect(isWidgetCaptureLink("/?focus=capture&source=widget")).toBe(true);
+    expect(
+      isWidgetCaptureLink("thinkdo:///?focus=capture&source=widget")
+    ).toBe(true);
+    expect(isWidgetCaptureLink("/settings")).toBe(false);
   });
 });
 

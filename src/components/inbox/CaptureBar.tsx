@@ -18,21 +18,25 @@ type Props = {
   onSubmit: (type: ItemType, title: string) => void;
   disabled: boolean;
   autoFocus?: boolean;
+  /** Bumps on each widget open so focus runs even when autoFocus stays true. */
+  focusEpoch?: number;
 };
 
-export function CaptureBar({ onSubmit, disabled, autoFocus }: Props) {
+export function CaptureBar({ onSubmit, disabled, autoFocus, focusEpoch }: Props) {
   const { colors } = useTheme();
   const inputRef = useRef<TextInput>(null);
   const [text, setText] = useState("");
   const [type, setType] = useState<ItemType>("note");
   const [focused, setFocused] = useState(false);
 
-  // RN autoFocus only runs on mount; widget opens inbox after load flips this later.
+  // RN autoFocus only runs on mount; widget re-opens need focusEpoch or autoFocus flips.
   useEffect(() => {
-    if (!autoFocus || disabled) return;
+    if (disabled) return;
+    const fromEpoch = focusEpoch !== undefined && focusEpoch > 0;
+    if (!autoFocus && !fromEpoch) return;
     const id = requestAnimationFrame(() => inputRef.current?.focus());
     return () => cancelAnimationFrame(id);
-  }, [autoFocus, disabled]);
+  }, [autoFocus, disabled, focusEpoch]);
 
   const submit = () => {
     const title = normalizeTitle(text);
