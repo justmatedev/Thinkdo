@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import {
   Pressable,
   StyleSheet,
@@ -9,6 +9,7 @@ import {
 import { AppIcon } from "../ui/AppIcon";
 import { font, fontSize, iconSize, radius, spacing, touchTarget } from "../../lib/theme";
 import type { AuthUiPalette } from "./authUiPalette";
+import { useAuthFieldScroll } from "./AuthScreenShell";
 
 type AuthTextFieldProps = {
   label: string;
@@ -44,11 +45,13 @@ export function AuthTextField({
   returnKeyType,
   onSubmitEditing,
 }: AuthTextFieldProps) {
+  const { scrollFieldIntoView } = useAuthFieldScroll();
+  const wrapperRef = useRef<View>(null);
   const [focused, setFocused] = useState(false);
   const [hidden, setHidden] = useState(secureTextEntry);
 
   return (
-    <View style={styles.wrapper}>
+    <View ref={wrapperRef} style={styles.wrapper}>
       <Text style={[styles.label, { color: palette.label }]}>{label}</Text>
       <View
         style={[
@@ -67,7 +70,10 @@ export function AuthTextField({
           style={[styles.input, { color: palette.inputText }]}
           value={value}
           onChangeText={onChangeText}
-          onFocus={() => setFocused(true)}
+          onFocus={() => {
+            setFocused(true);
+            scrollFieldIntoView(wrapperRef.current);
+          }}
           onBlur={() => setFocused(false)}
           placeholderTextColor={palette.placeholder}
           secureTextEntry={hidden}
