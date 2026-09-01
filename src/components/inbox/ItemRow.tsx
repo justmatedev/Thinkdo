@@ -2,6 +2,7 @@ import { StyleSheet, Text, View } from "react-native";
 import Sortable from "react-native-sortables";
 import { getItemPreview } from "../../lib/itemHelpers";
 import { itemColorSwatch, itemColorTint } from "../../lib/itemColors";
+import { isReminderSchedulable } from "../../lib/reminderHelpers";
 import {
   font,
   fontSize,
@@ -17,6 +18,7 @@ import { AppIcon } from "../ui/AppIcon";
 
 const LEAD_SIZE = 24;
 const LEAD_BORDER = 2;
+const REMINDER_ICON_OPACITY = 0.45;
 
 type Props = {
   item: Item;
@@ -42,6 +44,8 @@ export function ItemRow({
     ? itemColorSwatch(item.color, themeName)
     : colors.brand;
   const checkEmpty = item.color ? "transparent" : colors.accentSubtle;
+  const hasActiveReminder =
+    item.reminder != null && isReminderSchedulable(item.reminder);
 
   return (
     <View
@@ -55,6 +59,9 @@ export function ItemRow({
     >
       <Sortable.Touchable
         accessibilityRole="button"
+        accessibilityLabel={
+          hasActiveReminder ? `${item.title}, lembrete ativo` : item.title
+        }
         accessibilityHint={
           selectionMode
             ? "Toque para selecionar"
@@ -138,6 +145,20 @@ export function ItemRow({
             </Text>
           ) : null}
         </View>
+        {hasActiveReminder ? (
+          <View
+            pointerEvents="none"
+            accessibilityElementsHidden
+            importantForAccessibility="no-hide-descendants"
+            style={styles.reminderIcon}
+          >
+            <AppIcon
+              name="bell"
+              size={iconSize.xs}
+              color={colors.textSecondary}
+            />
+          </View>
+        ) : null}
       </Sortable.Touchable>
     </View>
   );
@@ -166,4 +187,7 @@ const styles = StyleSheet.create({
     borderWidth: LEAD_BORDER,
   },
   texts: { flex: 1, gap: spacing.xs },
+  reminderIcon: {
+    opacity: REMINDER_ICON_OPACITY,
+  },
 });
