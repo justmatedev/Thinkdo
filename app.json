@@ -73,7 +73,7 @@
               "minHeight": "110dp",
               "targetCellWidth": 4,
               "targetCellHeight": 2,
-              "maxResizeWidth": "280dp",
+              "maxResizeWidth": "560dp",
               "maxResizeHeight": "460dp",
               "resizeMode": "horizontal|vertical",
               "previewImage": "./assets/images/widget-inbox-preview.png",
