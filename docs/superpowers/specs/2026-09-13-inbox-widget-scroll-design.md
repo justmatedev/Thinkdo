@@ -1,7 +1,7 @@
 # Inbox widget scroll (hybrid ListWidget)
 
 **Date:** 2026-09-13  
-**Status:** Approved in chat; awaiting file review
+**Status:** Implemented (Tasks 1–3); device smoke deferred — no emulator/device attached
 
 ## Problem
 
